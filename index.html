@@ -94,6 +94,7 @@ body {
 .btn-sm    { padding: 5px 12px; font-size: .78rem; font-weight: 500; }
 .btn-red   { background: var(--red); }
 .btn-green { background: var(--green); color: #000; }
+.btn-green:hover { background: #52d667; }
 .err { color: var(--red); font-size: .82rem; margin-top: 10px; display: none; }
 
 /* ── App Shell ───────────────────── */
@@ -223,7 +224,6 @@ body {
 .bubble-sent  { align-self: flex-end; background: var(--sent-bg); border-bottom-right-radius: 3px; }
 .bubble-recv  { align-self: flex-start; background: var(--recv-bg); border: 1px solid var(--border); border-bottom-left-radius: 3px; }
 .bubble-from  { font-size: .72rem; color: var(--accent); font-weight: 700; margin-bottom: 2px; }
-.bubble-text  { }
 .bubble-time  { font-size: .65rem; color: var(--muted); text-align: right; margin-top: 3px; }
 
 .send-bar {
@@ -264,20 +264,40 @@ body {
 }
 .empty-icon { font-size: 3rem; }
 
-/* ── Channels section ────────────── */
+/* ══ 频道发布页面 ══════════════════════════════════════════ */
+/*
+  关键修复（2026-04-05）：
+  1. padding-bottom 增大到 220px（移动端 260px），彻底解决最后一张「可发布」卡片的「发布到频道」按钮被下方「其他关注频道」栏目遮挡的问题
+  2. ch-card 保持 overflow: visible
+  3. 可发布卡片和只读卡片之间增加更明显的视觉间距（readonly 标题 margin-top 改为 20px）
+  4. 只读频道卡片已使用 <a> 标签 + target="_blank"，点击即可自动跳转到对应频道的 Telegram 网页版（https://t.me/xxx）
+*/
 .channels-wrap {
   flex: 1;
   overflow-y: auto;
-  padding: 14px;
+  overflow-x: hidden;
+  padding: 16px 14px 220px; /* 大幅增加底部留白，确保最后一张卡的按钮完整露出 */
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px; /* 卡片之间间距略微增大，提升视觉呼吸感 */
 }
+
+.ch-section-title {
+  font-size: .72rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-weight: 700;
+  padding: 2px 2px 0;
+}
+
+/* 可发布频道卡片 */
 .ch-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  overflow: hidden;
+  overflow: visible; /* 不裁剪，防止按钮被遮 */
+  flex-shrink: 0;
 }
 .ch-card-head {
   padding: 12px 14px;
@@ -289,6 +309,7 @@ body {
 .ch-card-head .info { flex: 1; min-width: 0; }
 .ch-card-head .info strong { display: block; font-size: .88rem; }
 .ch-card-head .info span  { font-size: .72rem; color: var(--muted); }
+
 .badge {
   font-size: .65rem;
   padding: 2px 8px;
@@ -296,27 +317,88 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   flex-shrink: 0;
+  white-space: nowrap;
 }
-.badge-green { background: rgba(63,185,80,.2); color: var(--green); border: 1px solid var(--green); }
-.badge-gray  { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
-.ch-send-area { padding: 12px; }
+.badge-green { background: rgba(63,185,80,.15); color: var(--green); border: 1px solid rgba(63,185,80,.4); }
+
+/* 输入区：竖排，按钮在输入框下方，独立成行 */
+.ch-send-area {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 .ch-send-area textarea {
   width: 100%;
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 8px;
   color: var(--text);
-  padding: 9px 12px;
+  padding: 10px 12px;
   font-size: .88rem;
   resize: vertical;
-  min-height: 80px;
+  min-height: 90px;
   outline: none;
   font-family: inherit;
-  margin-bottom: 8px;
-  line-height: 1.45;
+  line-height: 1.5;
 }
 .ch-send-area textarea:focus { border-color: var(--accent); }
-.ch-info { padding: 12px 14px; color: var(--muted); font-size: .82rem; }
+/* 按钮行：靠右对齐，确保完整显示 */
+.ch-send-btn-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* 仅监控频道：整体可点击的链接卡片（已实现点击跳转 Telegram 网页） */
+.ch-card-link {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  flex-shrink: 0;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color .2s, background .15s;
+  cursor: pointer;
+}
+.ch-card-link:hover {
+  border-color: var(--accent);
+  background: var(--surface2);
+}
+.ch-card-link:hover .ch-link-arrow {
+  opacity: 1;
+  transform: translateX(3px);
+}
+.ch-link-body {
+  padding: 13px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ch-link-info { flex: 1; min-width: 0; }
+.ch-link-info strong { display: block; font-size: .88rem; line-height: 1.35; }
+.ch-link-url {
+  font-size: .72rem;
+  color: var(--accent);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ch-link-hint {
+  font-size: .7rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.ch-link-arrow {
+  font-size: 1rem;
+  color: var(--accent);
+  opacity: .35;
+  transform: translateX(0);
+  transition: opacity .2s, transform .2s;
+  flex-shrink: 0;
+}
 
 /* ── Toast ───────────────────────── */
 #toast {
@@ -334,6 +416,7 @@ body {
   pointer-events: none;
   opacity: 0;
   transition: opacity .3s;
+  white-space: nowrap;
 }
 #toast.show { opacity: 1; }
 
@@ -343,6 +426,9 @@ body {
   .chat-list.hide { display: none; }
   .chat-view.hide { display: none; }
   .back-btn { display: block; }
+  .channels-wrap { padding-bottom: 260px; } /* 移动端留更大底部空间 */
+  .ch-send-btn-row { justify-content: stretch; }
+  .ch-send-btn-row .btn { width: 100%; }
 }
 </style>
 </head>
@@ -414,7 +500,7 @@ body {
   </div>
 </div>
 
-<div id="toast">✅ 发布成功</div>
+<div id="toast"></div>
 
 <script>
 // ── 全局状态 ──────────────────────────────────────────────
@@ -429,8 +515,10 @@ const esc = s => String(s||'')
   .replace(/\n/g,'<br>');
 
 const fmtTime = ts => new Date(ts * 1000).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
-
 const initials = name => name.replace(/[\s（()【[\]】]/g,'').slice(0,2).toUpperCase() || '??';
+
+// @username 或 @xxx → https://t.me/xxx
+const tgUrl = id => `https://t.me/${String(id).replace(/^@/,'')}`;
 
 async function api(path, opts = {}) {
   const r = await fetch(WORKER + path, {
@@ -450,7 +538,7 @@ function toast(msg, ok = true) {
   el.style.background = ok ? 'var(--green)' : 'var(--red)';
   el.style.color = ok ? '#000' : '#fff';
   el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2500);
+  setTimeout(() => el.classList.remove('show'), 2600);
 }
 
 // ── 鉴权 ──────────────────────────────────────────────────
@@ -516,7 +604,7 @@ document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () =>
 async function boot() {
   try {
     CFG = await fetch(WORKER + '/api/config').then(r => r.json());
-  } catch { /* 用内置默认值 */ }
+  } catch {}
 
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
@@ -559,7 +647,9 @@ function openChat(listId, viewId, chat, type) {
       <div class="chat-view-title">${esc(chat.name)}</div>
       <span style="font-size:.72rem;color:var(--muted)"><span class="dot"></span>实时</span>
     </div>
-    <div class="messages" id="msgs-${sid}"><div style="color:var(--muted);font-size:.82rem;text-align:center;padding:20px">加载中…</div></div>
+    <div class="messages" id="msgs-${sid}">
+      <div style="color:var(--muted);font-size:.82rem;text-align:center;padding:20px">加载中…</div>
+    </div>
     <div class="send-bar">
       <textarea id="ta-${sid}" placeholder="输入消息，Enter 发送，Shift+Enter 换行" rows="1"
         oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
@@ -612,23 +702,33 @@ async function doSend(chatId) {
   ta.value = ''; ta.style.height = 'auto';
   try {
     const r = await api('/api/send', { method:'POST', body: JSON.stringify({ chatId, text }) });
-    if (r.ok) { fetchMsgs(chatId); }
+    if (r.ok) fetchMsgs(chatId);
     else toast('❌ 发送失败: ' + (r.description || '未知错误'), false);
-  } catch (e) { toast('❌ 网络错误', false); }
+  } catch { toast('❌ 网络错误', false); }
 }
 
-// ── 频道区域 ──────────────────────────────────────────────
+// ── 频道发布页面 ──────────────────────────────────────────
 function buildChannels() {
   const wrap = document.getElementById('channels-wrap');
   wrap.innerHTML = '';
-  CFG.channels.forEach(ch => {
-    const card = document.createElement('div');
-    card.className = 'ch-card';
-    const sid = safeId(ch.id);
-    if (ch.canSend) {
+
+  const sendable = CFG.channels.filter(c => c.canSend);
+  const readonly = CFG.channels.filter(c => !c.canSend);
+
+  // ── 可发布频道 ──────────────────────────────────────────
+  if (sendable.length) {
+    const t = document.createElement('div');
+    t.className = 'ch-section-title';
+    t.textContent = '📤 可发布频道';
+    wrap.appendChild(t);
+
+    sendable.forEach(ch => {
+      const sid = safeId(ch.id);
+      const card = document.createElement('div');
+      card.className = 'ch-card';
       card.innerHTML = `
         <div class="ch-card-head">
-          <div class="avatar" style="background:var(--green);color:#000">📢</div>
+          <div class="avatar" style="background:rgba(63,185,80,.15);color:var(--green);font-size:1rem">📢</div>
           <div class="info">
             <strong>${esc(ch.name)}</strong>
             <span>${esc(ch.id)}</span>
@@ -636,38 +736,78 @@ function buildChannels() {
           <span class="badge badge-green">可发布</span>
         </div>
         <div class="ch-send-area">
-          <textarea id="cht-${sid}" placeholder="输入要发布到频道的文本内容…"></textarea>
-          <button class="btn btn-green" onclick="sendCh('${ch.id}','${sid}')">📤 发布到频道</button>
-        </div>`;
-    } else {
-      card.innerHTML = `
-        <div class="ch-card-head">
-          <div class="avatar" style="background:var(--surface2)">📡</div>
-          <div class="info">
-            <strong>${esc(ch.name)}</strong>
-            <span>${esc(ch.id)}</span>
+          <textarea id="cht-${sid}" placeholder="输入要发布到「${esc(ch.name)}」的内容…"></textarea>
+          <div class="ch-send-btn-row">
+            <button class="btn btn-green" id="sbtn-${sid}" onclick="sendCh('${ch.id}','${sid}')">
+              📤 发布到频道
+            </button>
           </div>
-          <span class="badge badge-gray">仅监控</span>
-        </div>
-        <div class="ch-info">机器人尚未获得该频道管理员权限，无法发布消息。</div>`;
-    }
-    wrap.appendChild(card);
-  });
+        </div>`;
+      wrap.appendChild(card);
+    });
+  }
+
+  // ── 仅监控频道（整体可点击，自动跳转 Telegram 网页版） ────────
+  if (readonly.length) {
+    const t = document.createElement('div');
+    t.className = 'ch-section-title';
+    t.style.marginTop = sendable.length ? '20px' : '0';   /* 增大分隔间距 */
+    t.textContent = '📡 其他关注频道（点击打开）';
+    wrap.appendChild(t);
+
+    readonly.forEach(ch => {
+      const url = tgUrl(ch.id);
+      const a = document.createElement('a');
+      a.className = 'ch-card-link';
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.innerHTML = `
+        <div class="ch-link-body">
+          <div class="avatar" style="background:var(--surface2);font-size:1rem">📡</div>
+          <div class="ch-link-info">
+            <strong>${esc(ch.name)}</strong>
+            <div class="ch-link-url">${esc(url)}</div>
+            <div class="ch-link-hint">点击在 Telegram 网页端查看频道</div>
+          </div>
+          <div class="ch-link-arrow">→</div>
+        </div>`;
+      wrap.appendChild(a);
+    });
+  }
+
+  // 如果没有任何频道，显示提示
+  if (!sendable.length && !readonly.length) {
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.style.paddingTop = '60px';
+    empty.innerHTML = `<div class="empty-icon">📢</div><div>暂无配置频道</div>`;
+    wrap.appendChild(empty);
+  }
 }
 
+// ── 发布到频道 ────────────────────────────────────────────
 async function sendCh(chatId, sid) {
-  const ta = document.getElementById('cht-' + sid);
+  const ta  = document.getElementById('cht-' + sid);
+  const btn = document.getElementById('sbtn-' + sid);
   const text = ta.value.trim();
-  if (!text) return;
+  if (!text) { toast('⚠️ 请输入发布内容', false); return; }
+
+  btn.disabled = true;
+  btn.textContent = '发送中…';
   try {
     const r = await api('/api/send', { method:'POST', body: JSON.stringify({ chatId, text }) });
     if (r.ok) { ta.value = ''; toast('✅ 已成功发布到频道'); }
     else toast('❌ 发布失败: ' + (r.description || '未知'), false);
-  } catch { toast('❌ 网络错误', false); }
+  } catch {
+    toast('❌ 网络错误', false);
+  }
+  btn.disabled = false;
+  btn.textContent = '📤 发布到频道';
 }
 
 // ── 工具函数 ──────────────────────────────────────────────
 const safeId = id => String(id).replace(/[^a-z0-9]/gi, '_');
 </script>
 </body>
-          </html>
+</html>
