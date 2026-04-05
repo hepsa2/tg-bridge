@@ -121,7 +121,15 @@ body {
   display: inline-block;
   margin-right: 4px;
 }
-
+.ch-intro blockquote {
+  background: var(--surface2);
+  border-left: 4px solid var(--accent);
+  padding: 10px 12px;
+  font-size: .83rem;
+  color: var(--muted);
+  border-radius: 6px;
+  line-height: 1.45;
+}
 /* ── Tabs ────────────────────────── */
 .tabs {
   display: flex;
@@ -265,21 +273,14 @@ body {
 .empty-icon { font-size: 3rem; }
 
 /* ══ 频道发布页面 ══════════════════════════════════════════ */
-/*
-  关键修复（2026-04-05）：
-  1. padding-bottom 增大到 220px（移动端 260px），彻底解决最后一张「可发布」卡片的「发布到频道」按钮被下方「其他关注频道」栏目遮挡的问题
-  2. ch-card 保持 overflow: visible
-  3. 可发布卡片和只读卡片之间增加更明显的视觉间距（readonly 标题 margin-top 改为 20px）
-  4. 只读频道卡片已使用 <a> 标签 + target="_blank"，点击即可自动跳转到对应频道的 Telegram 网页版（https://t.me/xxx）
-*/
 .channels-wrap {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 16px 14px 220px; /* 大幅增加底部留白，确保最后一张卡的按钮完整露出 */
+  padding: 16px 14px 220px;
   display: flex;
   flex-direction: column;
-  gap: 16px; /* 卡片之间间距略微增大，提升视觉呼吸感 */
+  gap: 16px;
 }
 
 .ch-section-title {
@@ -291,12 +292,24 @@ body {
   padding: 2px 2px 0;
 }
 
+/* 引用文段样式（新增） */
+.ch-intro blockquote {
+  background: var(--surface2);
+  border-left: 4px solid var(--accent);
+  padding: 12px 14px;
+  font-size: .83rem;
+  color: var(--muted);
+  border-radius: 6px;
+  line-height: 1.5;
+  margin: 8px 0 16px 0;
+}
+
 /* 可发布频道卡片 */
 .ch-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  overflow: visible; /* 不裁剪，防止按钮被遮 */
+  overflow: visible;
   flex-shrink: 0;
 }
 .ch-card-head {
@@ -321,7 +334,7 @@ body {
 }
 .badge-green { background: rgba(63,185,80,.15); color: var(--green); border: 1px solid rgba(63,185,80,.4); }
 
-/* 输入区：竖排，按钮在输入框下方，独立成行 */
+/* 输入区 */
 .ch-send-area {
   padding: 14px;
   display: flex;
@@ -343,13 +356,13 @@ body {
   line-height: 1.5;
 }
 .ch-send-area textarea:focus { border-color: var(--accent); }
-/* 按钮行：靠右对齐，确保完整显示 */
+
 .ch-send-btn-row {
   display: flex;
   justify-content: flex-end;
 }
 
-/* 仅监控频道：整体可点击的链接卡片（已实现点击跳转 Telegram 网页） */
+/* 仅监控频道 */
 .ch-card-link {
   display: block;
   background: var(--surface);
@@ -426,7 +439,7 @@ body {
   .chat-list.hide { display: none; }
   .chat-view.hide { display: none; }
   .back-btn { display: block; }
-  .channels-wrap { padding-bottom: 260px; } /* 移动端留更大底部空间 */
+  .channels-wrap { padding-bottom: 260px; }
   .ch-send-btn-row { justify-content: stretch; }
   .ch-send-btn-row .btn { width: 100%; }
 }
@@ -434,7 +447,7 @@ body {
 </head>
 <body>
 
-<!-- ══ AUTH SCREEN ══════════════════════════════════════ -->
+<!-- AUTH SCREEN -->
 <div id="auth-screen">
   <div class="auth-card">
     <div class="auth-logo">🔗</div>
@@ -454,7 +467,7 @@ body {
   </div>
 </div>
 
-<!-- ══ MAIN APP ════════════════════════════════════════ -->
+<!-- MAIN APP -->
 <div id="app">
   <div class="app-header">
     <span class="title">🔗 TG 桥接控制台</span>
@@ -468,11 +481,11 @@ body {
     <div class="tab" data-tab="channels">📢 频道发布</div>
   </div>
 
-  <!-- ── 私密群组 ── -->
+  <!-- 私密群组 -->
   <div class="tab-content active" id="tab-private">
     <div class="chat-layout">
       <div class="chat-list" id="list-private"></div>
-      <div class="chat-view"  id="view-private">
+      <div class="chat-view" id="view-private">
         <div class="empty-state">
           <div class="empty-icon">💬</div>
           <div>从左侧选择一个群组</div>
@@ -481,11 +494,11 @@ body {
     </div>
   </div>
 
-  <!-- ── 公开群组 ── -->
+  <!-- 公开群组 -->
   <div class="tab-content" id="tab-public">
     <div class="chat-layout">
       <div class="chat-list" id="list-public"></div>
-      <div class="chat-view"  id="view-public">
+      <div class="chat-view" id="view-public">
         <div class="empty-state">
           <div class="empty-icon">💬</div>
           <div>从左侧选择一个群组</div>
@@ -494,7 +507,7 @@ body {
     </div>
   </div>
 
-  <!-- ── 频道发布 ── -->
+  <!-- 频道发布 -->
   <div class="tab-content" id="tab-channels">
     <div class="channels-wrap" id="channels-wrap"></div>
   </div>
@@ -517,7 +530,6 @@ const esc = s => String(s||'')
 const fmtTime = ts => new Date(ts * 1000).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
 const initials = name => name.replace(/[\s（()【[\]】]/g,'').slice(0,2).toUpperCase() || '??';
 
-// @username 或 @xxx → https://t.me/xxx
 const tgUrl = id => `https://t.me/${String(id).replace(/^@/,'')}`;
 
 async function api(path, opts = {}) {
@@ -614,7 +626,7 @@ async function boot() {
   buildChannels();
 }
 
-// ── 群组列表 ──────────────────────────────────────────────
+// ── 群组列表与消息功能（保持不变） ────────────────────────
 function buildList(listId, chats, viewId, type) {
   const list = document.getElementById(listId);
   list.innerHTML = '';
@@ -666,7 +678,6 @@ function backToList(listId, viewId) {
   document.getElementById(viewId).classList.add('hide');
 }
 
-// ── 消息加载 ──────────────────────────────────────────────
 async function fetchMsgs(chatId) {
   const box = document.getElementById('msgs-' + safeId(chatId));
   if (!box) return;
@@ -689,7 +700,6 @@ async function fetchMsgs(chatId) {
   } catch {}
 }
 
-// ── 发送消息 ──────────────────────────────────────────────
 function sendKey(e, chatId) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doSend(chatId); }
 }
@@ -707,7 +717,7 @@ async function doSend(chatId) {
   } catch { toast('❌ 网络错误', false); }
 }
 
-// ── 频道发布页面 ──────────────────────────────────────────
+// ── 频道发布页面（核心修改部分） ───────────────────────────
 function buildChannels() {
   const wrap = document.getElementById('channels-wrap');
   wrap.innerHTML = '';
@@ -715,7 +725,7 @@ function buildChannels() {
   const sendable = CFG.channels.filter(c => c.canSend);
   const readonly = CFG.channels.filter(c => !c.canSend);
 
-  // ── 可发布频道 ──────────────────────────────────────────
+  // 可发布频道
   if (sendable.length) {
     const t = document.createElement('div');
     t.className = 'ch-section-title';
@@ -747,13 +757,23 @@ function buildChannels() {
     });
   }
 
-  // ── 仅监控频道（整体可点击，自动跳转 Telegram 网页版） ────────
+  // 仅监控频道（其他关注频道）
   if (readonly.length) {
     const t = document.createElement('div');
     t.className = 'ch-section-title';
-    t.style.marginTop = sendable.length ? '20px' : '0';   /* 增大分隔间距 */
+    t.style.marginTop = sendable.length ? '20px' : '0';
     t.textContent = '📡 其他关注频道（点击打开）';
     wrap.appendChild(t);
+
+    // 新增：引用文段
+    const intro = document.createElement('div');
+    intro.className = 'ch-intro';
+    intro.innerHTML = `
+      <blockquote>
+        在网址t.me/后添加s/<br>
+        之后前往新页面查看频道内容
+      </blockquote>`;
+    wrap.appendChild(intro);
 
     readonly.forEach(ch => {
       const url = tgUrl(ch.id);
@@ -776,7 +796,7 @@ function buildChannels() {
     });
   }
 
-  // 如果没有任何频道，显示提示
+  // 没有任何频道时显示提示
   if (!sendable.length && !readonly.length) {
     const empty = document.createElement('div');
     empty.className = 'empty-state';
@@ -810,4 +830,4 @@ async function sendCh(chatId, sid) {
 const safeId = id => String(id).replace(/[^a-z0-9]/gi, '_');
 </script>
 </body>
-</html>
+  </html>
