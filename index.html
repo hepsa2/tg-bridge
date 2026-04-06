@@ -61,7 +61,7 @@ body {
 #bg-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(13,17,23,0.78);
+  background: rgba(13,17,23,0.55);          /* ← 调亮：原来 0.78 → 0.55 */
   backdrop-filter: blur(1px);
   z-index: 1;
 }
@@ -243,7 +243,7 @@ body {
   flex-shrink: 0;
   border-right: 1px solid var(--border);
   overflow-y: auto;
-  background: rgba(22,27,34,0.70);
+  background: rgba(22,27,34,0.45);          /* ← 调亮 + 让壁纸透出：原来 0.70 → 0.45 */
   backdrop-filter: blur(8px);
 }
 .chat-list::-webkit-scrollbar { width: 4px; }
@@ -305,7 +305,7 @@ body {
   flex-direction: column;
   min-width: 0;
   overflow: hidden;
-  background: rgba(13,17,23,0.55);
+  background: rgba(13,17,23,0.35);          /* ← 调亮 + 让壁纸透出：原来 0.55 → 0.35 */
   backdrop-filter: blur(6px);
 }
 .chat-view-header {
@@ -639,6 +639,7 @@ body {
 }
 </style>
 </head>
+
 <body>
 
 <!-- 壁纸层 -->
@@ -982,28 +983,38 @@ function backToList(listId, viewId) {
   document.getElementById(viewId).classList.add('hide');
 }
 
-// ── 获取消息 ─────────────────────────────────────────────
+// ── 获取消息（关键修复：无新消息时完全不操作 DOM，彻底解决闪屏） ─────────────────
 async function fetchMsgs(chatId) {
   const sid = safeId(chatId);
   const box = document.getElementById('msgs-' + sid);
   if (!box) return;
+
   try {
     const msgs = await api('/api/messages?chatId=' + encodeURIComponent(chatId));
+
+    let html;
     if (!Array.isArray(msgs) || !msgs.length) {
-      box.innerHTML = `<div class="sys-msg">暂无消息 · 确保机器人已加入并关闭隐私模式</div>`;
-      return;
+      html = `<div class="sys-msg">暂无消息 · 确保机器人已加入并关闭隐私模式</div>`;
+    } else {
+      html = msgs.slice().reverse().map(m => {
+        const sent    = (m.from || '').includes('【Web发送】');
+        const extra   = !sent && m.from && m.from.includes('(@') ? 'bubble-contact' : '';
+        return `<div class="bubble ${sent ? 'bubble-sent' : 'bubble-recv'} ${extra}">
+          ${!sent ? `<div class="bubble-from">${esc(m.from)}</div>` : ''}
+          <div class="bubble-text">${esc(m.text)}</div>
+          <div class="bubble-time">${fmtDate(m.date)}</div>
+        </div>`;
+      }).join('');
     }
-    const atBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 60;
-    box.innerHTML = msgs.slice().reverse().map(m => {
-      const sent    = (m.from || '').includes('【Web发送】');
-      const extra   = !sent && m.from && m.from.includes('(@') ? 'bubble-contact' : '';
-      return `<div class="bubble ${sent ? 'bubble-sent' : 'bubble-recv'} ${extra}">
-        ${!sent ? `<div class="bubble-from">${esc(m.from)}</div>` : ''}
-        <div class="bubble-text">${esc(m.text)}</div>
-        <div class="bubble-time">${fmtDate(m.date)}</div>
-      </div>`;
-    }).join('');
-    if (atBottom) box.scrollTop = box.scrollHeight;
+
+    // 只有内容真正变化时才更新 DOM → 彻底解决每 5 秒闪屏
+    if (box.innerHTML !== html) {
+      const atBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 60;
+      box.innerHTML = html;
+      if (atBottom || box.scrollHeight < 400) {
+        box.scrollTop = box.scrollHeight;
+      }
+    }
   } catch {}
 }
 
