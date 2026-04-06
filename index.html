@@ -484,11 +484,11 @@ body {
 
 .ch-card {
   background: rgba(22,27,34,0.45);         /* ← 从 0.85 → 0.45 */
-  border: 1px solid rgba(255,255,255,.12); /* ← 更浅 */
+  border: 1px solid rgba(255,255,255,.10); /* ← 更浅 */
   border-radius: var(--radius);
   overflow: hidden;
   flex-shrink: 0;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(4px);
   transition: border-color var(--anim), box-shadow var(--anim);
 }
 .ch-card:focus-within {
@@ -531,7 +531,7 @@ body {
   background: rgba(22,27,34,0.35);        /* ← 从不透明改为浅透明 */
   border: 1px solid rgba(255,255,255,.15);
   border-radius: 10px;
-  color: var(-text);
+  color: var(--text);
   padding: 10px 13px;
   font-size: .87rem;
   resize: vertical;
