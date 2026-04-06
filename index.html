@@ -233,7 +233,11 @@ body {
 }
 
 .tab-content { display: none; flex: 1; overflow: hidden; }
-.tab-content.active { display: flex; }
+.tab-content.active {
+  display: flex;
+  background: rgba(13,17,23,0.35);    /* ← 新增：统一亮度与频道页一致 */
+  backdrop-filter: blur(6px);
+}
 
 /* ── Chat layout ──────────────────────────────────── */
 .chat-layout { display: flex; width: 100%; height: 100%; overflow: hidden; }
@@ -243,8 +247,8 @@ body {
   flex-shrink: 0;
   border-right: 1px solid var(--border);
   overflow-y: auto;
-  background: rgba(22,27,34,0.45);          /* ← 调亮 + 让壁纸透出：原来 0.70 → 0.45 */
-  backdrop-filter: blur(8px);
+  background: rgba(13,17,23,0.35);          /* ← 调亮 + 让壁纸透出：原来 0.70 → 0.45 */
+  backdrop-filter: blur(6px);
 }
 .chat-list::-webkit-scrollbar { width: 4px; }
 .chat-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
@@ -479,8 +483,8 @@ body {
 }
 
 .ch-card {
-  background: rgba(22,27,34,0.85);
-  border: 1px solid var(--border2);
+  background: rgba(22,27,34,0.45);         /* ← 从 0.85 → 0.45 */
+  border: 1px solid rgba(255,255,255,.12); /* ← 更浅 */
   border-radius: var(--radius);
   overflow: hidden;
   flex-shrink: 0;
@@ -496,7 +500,8 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(255,255,255,.08); /* 更浅 */
+  background: rgba(22,27,34,0.25);                 /* 比卡片主体稍亮 */
 }
 .ch-card-head .info { flex: 1; min-width: 0; }
 .ch-card-head .info strong { display: block; font-size: .87rem; color: var(--text); }
@@ -523,10 +528,10 @@ body {
 }
 .ch-send-area textarea {
   width: 100%;
-  background: var(--surface2);
-  border: 1px solid var(--border2);
+  background: rgba(22,27,34,0.35);        /* ← 从不透明改为浅透明 */
+  border: 1px solid rgba(255,255,255,.15);
   border-radius: 10px;
-  color: var(--text);
+  color: var(-text);
   padding: 10px 13px;
   font-size: .87rem;
   resize: vertical;
