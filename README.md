@@ -1,2 +1,2 @@
 # tg-bridge
-worker代码暂存私密writefreely实例
+开源的web端与telegram双向桥接机制
