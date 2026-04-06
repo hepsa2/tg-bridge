@@ -2,26 +2,26 @@
 //  TG 桥接 Worker v2 - Cloudflare Workers
 //  KV Namespace 绑定名称：MESSAGES_KV
 // ========================================================
-const BOT_TOKEN  = '8617307058:AAHLPR6Et3yVYiEzWouQUIfysBR4yZinLbI';
+const BOT_TOKEN  = '000000:KamSOKWSK1928';
 const SECRET_KEY = 'your-secret-key-change-this';
 const TG_API     = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
 // ── 配置 ─────────────────────────────────────────────────
 const CHAT_CONFIG = {
   private: [
-    { id: '-1003781397677', name: '流星事务商谈群' },
-    { id: '-1002587116800', name: '劳动解放社群' },
+    { id: '-000000000', name: '私密群1示例' },
+    { id: '-000000000', name: '2群' },
   ],
   public: [
-    { id: '-1003319224420', name: '工革群' },
-    { id: '-1003389627640', name: '发布处探讨群' },
+    { id: '-000000000', name: '公开群1' },
+    { id: '-000000000', name: '公开2群' },
   ],
   channels: [
-    { id: '@unity2025cn',              name: 'Unity 2025',      canSend: true  },
-    { id: '@gong_ge_news',             name: '工革报发布室',     canSend: false },
-    { id: '@pelosi3',                  name: '经济信息分享频道', canSend: false },
-    { id: '@lilaoshibushinilaoshi',    name: '李老师新闻频道',   canSend: false },
-    { id: '@laodongqushi',             name: '中国劳动趋势',     canSend: false },
+    { id: '@xxxxxxx',              name: '你自己的频道，且机器人是频道管理',      canSend: true  },
+    { id: '@xxxxxxx',             name: '别人的',     canSend: false },
+    { id: '@xxxxxxx',                  name: '别人的', canSend: false },
+    { id: '@xxxxxxx',    name: '别人的',   canSend: false },
+    { id: '@xxxxxxx',             name: '别人的',     canSend: false },
   ],
   // ── 私聊联系人配置 ────────────────────────────────────
   // 填写 Telegram 用户的数字 ID（不是用户名），用户需先向机器人发送 /start
