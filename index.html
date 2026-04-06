@@ -62,7 +62,7 @@ body {
   position: fixed;
   inset: 0;
   background: rgba(13,17,23,0.20);          /* ← 调亮：原来 0.78 → 0.40 */
-  backdrop-filter: blur(0px);
+  backdrop-filter: blur(1px);
   z-index: 1;
 }
 
@@ -87,21 +87,21 @@ body {
   padding: 38px 30px 32px;
   width: 100%;
   max-width: 400px;
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(15px);
   box-shadow: 0 24px 60px rgba(0,0,0,.5);
 }
 .auth-logo { font-size: 2.2rem; margin-bottom: 10px; }
 .auth-card h1 { font-size: 1.25rem; margin-bottom: 4px; color: var(--text); font-weight: 700; }
 .auth-card p  { color: var(--muted); font-size: .84rem; margin-bottom: 28px; line-height: 1.5; }
 
-.field { margin-bottom: 14px; }
+.field { margin-bottom: 11px; }
 .field label {
   display: block;
   font-size: .7rem;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: .07em;
-  margin-bottom: 6px;
+  margin-bottom: 2px;
   font-weight: 600;
 }
 .field input {
@@ -181,7 +181,7 @@ body {
   border-bottom: 1px solid var(--border);
   gap: 10px;
   flex-shrink: 0;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(2px);
 }
 .app-header .title { flex: 1; font-size: .94rem; font-weight: 700; color: var(--text); }
 .status-dot {
@@ -210,7 +210,7 @@ body {
   background: rgba(22,27,34,0.88);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(2px);
 }
 .tab {
   flex: 1;
