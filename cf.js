@@ -1,0 +1,236 @@
+// ========================================================
+//  TG 桥接 Worker v2 - Cloudflare Workers
+//  KV Namespace 绑定名称：MESSAGES_KV
+// ========================================================
+const BOT_TOKEN  = '8617307058:AAHLPR6Et3yVYiEzWouQUIfysBR4yZinLbI';
+const SECRET_KEY = 'your-secret-key-change-this';
+const TG_API     = `https://api.telegram.org/bot${BOT_TOKEN}`;
+
+// ── 配置 ─────────────────────────────────────────────────
+const CHAT_CONFIG = {
+  private: [
+    { id: '-1003781397677', name: '流星事务商谈群' },
+    { id: '-1002587116800', name: '劳动解放社群' },
+  ],
+  public: [
+    { id: '-1003319224420', name: '工革群' },
+    { id: '-1003389627640', name: '发布处探讨群' },
+  ],
+  channels: [
+    { id: '@unity2025cn',              name: 'Unity 2025',      canSend: true  },
+    { id: '@gong_ge_news',             name: '工革报发布室',     canSend: false },
+    { id: '@pelosi3',                  name: '经济信息分享频道', canSend: false },
+    { id: '@lilaoshibushinilaoshi',    name: '李老师新闻频道',   canSend: false },
+    { id: '@laodongqushi',             name: '中国劳动趋势',     canSend: false },
+  ],
+  // ── 私聊联系人配置 ────────────────────────────────────
+  // 填写 Telegram 用户的数字 ID（不是用户名），用户需先向机器人发送 /start
+  // 可通过让用户在群里发 /getid 获取其 chat id（私聊机器人后也会返回）
+  contacts: [
+    // { id: '123456789', name: '联系人A' },
+    // { id: '987654321', name: '联系人B' },
+  ],
+};
+
+// ── CORS ─────────────────────────────────────────────────
+const CORS = {
+  'Access-Control-Allow-Origin':  '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+const jsonResp = (data, status = 200) =>
+  new Response(JSON.stringify(data), {
+    status,
+    headers: { ...CORS, 'Content-Type': 'application/json' },
+  });
+
+// ── 主入口 ───────────────────────────────────────────────
+addEventListener('fetch', event => {
+  event.respondWith(handleRequest(event.request));
+});
+
+async function handleRequest(req) {
+  const { pathname } = new URL(req.url);
+
+  if (req.method === 'OPTIONS') return new Response(null, { headers: CORS });
+
+  // Webhook（无需鉴权）
+  if (pathname === '/webhook' && req.method === 'POST') {
+    return onWebhook(req);
+  }
+
+  // 登录验证
+  if (pathname === '/api/auth' && req.method === 'POST') {
+    const body = await req.json().catch(() => ({}));
+    const ok = body.key === SECRET_KEY;
+    return jsonResp({ ok }, ok ? 200 : 401);
+  }
+
+  // 公开配置
+  if (pathname === '/api/config') {
+    return jsonResp(CHAT_CONFIG);
+  }
+
+  // ── 以下需要鉴权 ──
+  const auth = req.headers.get('Authorization');
+  if (auth !== `Bearer ${SECRET_KEY}`) {
+    return jsonResp({ error: 'Unauthorized' }, 401);
+  }
+
+  if (pathname === '/api/messages' && req.method === 'GET') {
+    return onGetMessages(req);
+  }
+
+  if (pathname === '/api/send' && req.method === 'POST') {
+    return onSend(req);
+  }
+
+  // 清空某会话消息（可选）
+  if (pathname === '/api/clear' && req.method === 'POST') {
+    return onClear(req);
+  }
+
+  return new Response('Not Found', { status: 404, headers: CORS });
+}
+
+// ── Webhook：接收 Telegram 消息 ──────────────────────────
+async function onWebhook(req) {
+  try {
+    const update = await req.json();
+
+    const msg = update.message
+              || update.channel_post
+              || update.edited_message
+              || update.edited_channel_post;
+
+    if (!msg) return new Response('ok', { headers: CORS });
+
+    const chatId   = String(msg.chat.id);
+    const chatType = msg.chat.type; // 'private' | 'group' | 'supergroup' | 'channel'
+    const text     = msg.text || msg.caption || '';
+
+    // ── /getid 指令 ───────────────────────────────────────
+    if (text.startsWith('/getid')) {
+      let reply = `当前 Chat ID：\`${chatId}\`\n类型：${chatType}`;
+      if (msg.from) {
+        reply += `\n\n你的用户 ID：\`${msg.from.id}\``;
+        if (msg.from.username) reply += `\n用户名：@${msg.from.username}`;
+      }
+      await tgSend(chatId, reply);
+      return new Response('ok', { headers: CORS });
+    }
+
+    // ── /start 指令（私聊） ───────────────────────────────
+    if (chatType === 'private' && text.startsWith('/start')) {
+      const uid = msg.from ? String(msg.from.id) : chatId;
+      const name = msg.from
+        ? (msg.from.first_name || '') + (msg.from.last_name ? ' ' + msg.from.last_name : '')
+        : chatId;
+      await tgSend(chatId,
+        `✅ 你好，${name}！\n机器人桥接已就绪。\n你的用户 ID：\`${uid}\`\n请将此 ID 告知管理员，以便将你加入联系人列表。`
+      );
+    }
+
+    // ── 存储消息 ──────────────────────────────────────────
+    if (text) {
+      // 检查是否为已配置联系人的私聊
+      const isKnownContact = chatType === 'private' &&
+        CHAT_CONFIG.contacts.some(c => String(c.id) === chatId);
+
+      if (chatType !== 'private' || isKnownContact) {
+        await storeMessage(chatId, msg, text);
+      }
+    }
+
+    return new Response('ok', { headers: CORS });
+  } catch (e) {
+    return new Response('error: ' + e.message, { status: 500, headers: CORS });
+  }
+}
+
+// ── 存储消息到 KV ─────────────────────────────────────────
+async function storeMessage(chatId, msg, text) {
+  const key = `m:${chatId}`;
+  let msgs = [];
+  try {
+    const raw = await MESSAGES_KV.get(key);
+    if (raw) msgs = JSON.parse(raw);
+  } catch {}
+
+  let from = '未知';
+  if (msg.from) {
+    from = (msg.from.first_name || '');
+    if (msg.from.last_name)  from += ' ' + msg.from.last_name;
+    if (msg.from.username)   from += ` (@${msg.from.username})`;
+  } else if (msg.chat) {
+    from = msg.chat.title || msg.chat.username || 'Channel';
+  }
+
+  msgs.unshift({
+    id:   msg.message_id,
+    from,
+    text,
+    date: msg.date,
+    ts:   Date.now(),
+  });
+
+  // 保留最新 200 条，TTL 7 天
+  await MESSAGES_KV.put(key, JSON.stringify(msgs.slice(0, 200)), {
+    expirationTtl: 604800,
+  });
+}
+
+// ── 获取消息 ─────────────────────────────────────────────
+async function onGetMessages(req) {
+  const params = new URL(req.url).searchParams;
+  const chatId = params.get('chatId');
+  if (!chatId) return jsonResp({ error: 'missing chatId' }, 400);
+  try {
+    const raw = await MESSAGES_KV.get(`m:${chatId}`);
+    return jsonResp(raw ? JSON.parse(raw) : []);
+  } catch {
+    return jsonResp([]);
+  }
+}
+
+// ── 发送消息 ─────────────────────────────────────────────
+async function onSend(req) {
+  const { chatId, text } = await req.json().catch(() => ({}));
+  if (!chatId || !text) return jsonResp({ error: '缺少 chatId 或 text' }, 400);
+
+  const res    = await tgSendRaw(chatId, text);
+  const result = await res.json();
+
+  if (result.ok) {
+    await storeMessage(chatId, {
+      message_id: result.result.message_id,
+      from: { first_name: '【Web发送】' },
+      chat: {},
+      date: Math.floor(Date.now() / 1000),
+    }, text);
+  }
+  return jsonResp(result);
+}
+
+// ── 清空会话 ─────────────────────────────────────────────
+async function onClear(req) {
+  const { chatId } = await req.json().catch(() => ({}));
+  if (!chatId) return jsonResp({ error: 'missing chatId' }, 400);
+  await MESSAGES_KV.delete(`m:${chatId}`);
+  return jsonResp({ ok: true });
+}
+
+// ── TG 发送辅助 ──────────────────────────────────────────
+function tgSendRaw(chatId, text) {
+  return fetch(`${TG_API}/sendMessage`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ chat_id: chatId, text, parse_mode: 'Markdown' }),
+  });
+}
+
+async function tgSend(chatId, text) {
+  const r = await tgSendRaw(chatId, text);
+  return r.json();
+}
