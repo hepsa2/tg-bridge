@@ -61,8 +61,8 @@ body {
 #bg-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(13,17,23,0.40);          /* ← 调亮：原来 0.78 → 0.40 */
-  backdrop-filter: blur(0px);
+  background: rgba(13,17,23,0.20);          /* ← 调亮：原来 0.78 → 0.40 */
+  backdrop-filter: blur(1px);
   z-index: 1;
 }
 
@@ -81,27 +81,27 @@ body {
   padding: 20px;
 }
 .auth-card {
-  background: rgba(22,27,34,0.92);
+  background: rgba(22,27,34,0.52);
   border: 1px solid var(--border2);
   border-radius: var(--radius-xl);
   padding: 38px 30px 32px;
   width: 100%;
   max-width: 400px;
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(15px);
   box-shadow: 0 24px 60px rgba(0,0,0,.5);
 }
 .auth-logo { font-size: 2.2rem; margin-bottom: 10px; }
 .auth-card h1 { font-size: 1.25rem; margin-bottom: 4px; color: var(--text); font-weight: 700; }
 .auth-card p  { color: var(--muted); font-size: .84rem; margin-bottom: 28px; line-height: 1.5; }
 
-.field { margin-bottom: 14px; }
+.field { margin-bottom: 11px; }
 .field label {
   display: block;
   font-size: .7rem;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: .07em;
-  margin-bottom: 6px;
+  margin-bottom: 2px;
   font-weight: 600;
 }
 .field input {
@@ -181,7 +181,7 @@ body {
   border-bottom: 1px solid var(--border);
   gap: 10px;
   flex-shrink: 0;
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(2px);
 }
 .app-header .title { flex: 1; font-size: .94rem; font-weight: 700; color: var(--text); }
 .status-dot {
@@ -210,7 +210,7 @@ body {
   background: rgba(22,27,34,0.88);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(2px);
 }
 .tab {
   flex: 1;
@@ -233,7 +233,11 @@ body {
 }
 
 .tab-content { display: none; flex: 1; overflow: hidden; }
-.tab-content.active { display: flex; }
+.tab-content.active {
+  display: flex;
+  background: rgba(13,17,23,0.35);    /* ← 新增：统一亮度与频道页一致 */
+  backdrop-filter: blur(3px);
+}
 
 /* ── Chat layout ──────────────────────────────────── */
 .chat-layout { display: flex; width: 100%; height: 100%; overflow: hidden; }
@@ -243,8 +247,8 @@ body {
   flex-shrink: 0;
   border-right: 1px solid var(--border);
   overflow-y: auto;
-  background: rgba(22,27,34,0.45);          /* ← 调亮 + 让壁纸透出：原来 0.70 → 0.45 */
-  backdrop-filter: blur(8px);
+  background: rgba(13,17,23,0.35);          /* ← 调亮 + 让壁纸透出：原来 0.70 → 0.45 */
+  backdrop-filter: blur(3px);
 }
 .chat-list::-webkit-scrollbar { width: 4px; }
 .chat-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
@@ -479,12 +483,12 @@ body {
 }
 
 .ch-card {
-  background: rgba(22,27,34,0.85);
-  border: 1px solid var(--border2);
+  background: rgba(22,27,34,0.45);         /* ← 从 0.85 → 0.45 */
+  border: 1px solid rgba(255,255,255,.10); /* ← 更浅 */
   border-radius: var(--radius);
   overflow: hidden;
   flex-shrink: 0;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(4px);
   transition: border-color var(--anim), box-shadow var(--anim);
 }
 .ch-card:focus-within {
@@ -496,7 +500,8 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(255,255,255,.08); /* 更浅 */
+  background: rgba(22,27,34,0.25);                 /* 比卡片主体稍亮 */
 }
 .ch-card-head .info { flex: 1; min-width: 0; }
 .ch-card-head .info strong { display: block; font-size: .87rem; color: var(--text); }
@@ -523,8 +528,8 @@ body {
 }
 .ch-send-area textarea {
   width: 100%;
-  background: var(--surface2);
-  border: 1px solid var(--border2);
+  background: rgba(22,27,34,0.35);        /* ← 从不透明改为浅透明 */
+  border: 1px solid rgba(255,255,255,.15);
   border-radius: 10px;
   color: var(--text);
   padding: 10px 13px;
