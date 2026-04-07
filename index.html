@@ -59,6 +59,7 @@ body {
   filter: blur(0px) brightness(1);
   /* 进入模糊状态时平滑过渡 */
   transition: opacity 1s ease, filter 1.2s ease;
+  filter: brightness(1.15) contrast(1.08) saturate(1.05);
 }
 #bg-layer.loaded { opacity: 1; }
 /* 壁纸模糊状态（登录卡片出现时触发） */
@@ -74,14 +75,14 @@ body.app-active #bg-layer {
 #bg-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(13,17,23,0.20);
+  background: rgba(13,17,23,0.15);
   backdrop-filter: blur(1px);
   z-index: 1;
   transition: background 1s ease;
 }
 /* 登录卡片出现时加深遮罩一点 */
 #bg-overlay.dimmed {
-  background: rgba(13,17,23,0.38);
+  background: rgba(13,17,23,0.32);
 }
 /* 登录后应用视图——更亮 */
 body.app-active #bg-overlay {
@@ -875,7 +876,7 @@ let timers = {};
       setTimeout(() => {
         authCard.classList.add('visible');
       }, 100);
-    }, 5000);
+    }, 3000);
   };
   img.onerror = () => {
     // 图片加载失败则直接显示卡片
