@@ -46,7 +46,7 @@ body {
   position: relative;
 }
 
-/* 壁纸层 */
+/* ── 壁纸层 ─────────────────────────────────────────── */
 #bg-layer {
   position: fixed;
   inset: 0;
@@ -55,13 +55,19 @@ body {
   background-repeat: no-repeat;
   z-index: 0;
   opacity: 0;
+  transition: opacity 1s ease;
+  filter: blur(0px) brightness(1);
+  /* 进入模糊状态时平滑过渡 */
   transition: opacity 1s ease, filter 1.2s ease;
   filter: brightness(1.15) contrast(1.08) saturate(1.05);
 }
-
 #bg-layer.loaded { opacity: 1; }
-#bg-layer.blurred { filter: brightness(0.88) contrast(1.0) saturate(0.97) blur(6px); }
+/* 壁纸模糊状态（登录卡片出现时触发） */
+#bg-layer.blurred {
+  filter: blur(6px) brightness(0.75);
+}
 
+/* 登录后的应用壁纸——提亮 */
 body.app-active #bg-layer {
   filter: blur(3px) brightness(1.10) !important;
 }
@@ -74,20 +80,23 @@ body.app-active #bg-layer {
   z-index: 1;
   transition: background 1s ease;
 }
-
-#bg-overlay.dimmed { background: rgba(13,17,23,0.32); }
+/* 登录卡片出现时加深遮罩一点 */
+#bg-overlay.dimmed {
+  background: rgba(13,17,23,0.32);
+}
+/* 登录后应用视图——更亮 */
 body.app-active #bg-overlay {
   background: rgba(13,17,23,0.08) !important;
   backdrop-filter: none;
 }
 
-/* 主内容 */
+/* ── 所有主内容在壁纸之上 ─────────────────────────── */
 #auth-screen, #app {
   position: relative;
   z-index: 2;
 }
 
-/* Auth Screen */
+/* ── Auth Screen ──────────────────────────────────── */
 #auth-screen {
   display: flex;
   align-items: center;
@@ -96,6 +105,7 @@ body.app-active #bg-overlay {
   padding: 20px;
 }
 
+/* 登录卡片初始隐藏，等壁纸欣赏完毕后飘入 */
 .auth-card {
   background: rgba(22,27,34,0.38);
   border: 1px solid rgba(255,255,255,0.14);
@@ -105,13 +115,15 @@ body.app-active #bg-overlay {
   max-width: 400px;
   backdrop-filter: blur(20px);
   box-shadow: 0 24px 60px rgba(0,0,0,.45);
+
+  /* 初始：透明 + 向下偏移 */
   opacity: 0;
   transform: translateY(28px) scale(0.97);
   pointer-events: none;
   transition: opacity 0.8s cubic-bezier(.22,1,.36,1),
               transform 0.8s cubic-bezier(.22,1,.36,1);
 }
-
+/* 登录卡片出现状态 */
 .auth-card.visible {
   opacity: 1;
   transform: translateY(0) scale(1);
@@ -132,7 +144,7 @@ body.app-active #bg-overlay {
   margin-bottom: 2px;
   font-weight: 600;
 }
-
+/* ① 输入框改为透明玻璃风格 */
 .field input {
   width: 100%;
   background: rgba(255,255,255,0.08);
@@ -151,7 +163,7 @@ body.app-active #bg-overlay {
   box-shadow: 0 0 0 3px rgba(56,139,253,.18);
 }
 
-/* 按钮样式 */
+/* ── 按钮基础 ─────────────────────────────────────── */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -180,24 +192,24 @@ body.app-active #bg-overlay {
 .btn.tap-active::after { background: rgba(255,255,255,.18); }
 .btn:hover   { background: var(--accent); box-shadow: 0 4px 14px rgba(56,139,253,.3); }
 .btn:active  { transform: scale(.97); }
-.btn:disabled{ opacity: .42; cursor: not-allowed; }
+.btn:disabled{ opacity: .42; cursor: not-allowed; transform: none; box-shadow: none; }
 .btn-full    { width: 100%; margin-top: 6px; }
-.btn-sm      { padding: 5px 12px; font-size: .76rem; border-radius: 8px; }
+.btn-sm      { padding: 5px 12px; font-size: .76rem; font-weight: 600; border-radius: 8px; }
 .btn-red     { background: var(--red); }
-.btn-red:hover { background: #f47067; }
+.btn-red:hover { background: #f47067; box-shadow: 0 4px 14px rgba(229,83,75,.3); }
 .btn-green   { background: var(--green2); color: #d2f4d3; }
-.btn-green:hover { background: var(--green); }
+.btn-green:hover { background: var(--green); box-shadow: 0 4px 14px rgba(87,171,90,.3); }
 .btn-ghost   {
   background: transparent;
   color: var(--text2);
   border: 1px solid var(--border2);
   font-weight: 500;
 }
-.btn-ghost:hover { background: var(--surface3); color: var(--text); }
+.btn-ghost:hover { background: var(--surface3); box-shadow: none; color: var(--text); }
 
 .err { color: var(--red); font-size: .82rem; margin-top: 10px; display: none; }
 
-/* App Shell */
+/* ── App Shell ────────────────────────────────────── */
 #app {
   display: none;
   flex-direction: column;
@@ -226,15 +238,16 @@ body.app-active #bg-overlay {
   width: 7px; height: 7px;
   border-radius: 50%;
   background: var(--green);
+  display: inline-block;
   box-shadow: 0 0 5px var(--green);
   animation: pulse-dot 2.5s ease infinite;
 }
 @keyframes pulse-dot {
   0%,100% { opacity: 1; }
-  50% { opacity: .45; }
+  50%      { opacity: .45; }
 }
 
-/* Tabs */
+/* ── Tabs ─────────────────────────────────────────── */
 .tabs {
   display: flex;
   background: rgba(22,27,34,0.88);
@@ -269,66 +282,24 @@ body.app-active #bg-overlay {
   backdrop-filter: blur(3px);
 }
 
-/* Chat layout */
+/* ── Chat layout ──────────────────────────────────── */
 .chat-layout {
   display: flex;
   width: 100%;
   height: 100%;
   overflow: hidden;
-  position: relative;
+  position: relative; /* ③ 让浮动按钮相对于此定位 */
 }
 
-/* 全局悬浮帮助按钮（位置同步关键） */
-#fab-help {
-  position: fixed;
-  right: 20px;
-  bottom: 90px;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: rgba(56,139,253,0.82);
-  border: 1.5px solid rgba(121,192,255,0.45);
-  color: #fff;
-  font-size: 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: grab;
-  box-shadow: 0 6px 22px rgba(56,139,253,.40), 0 2px 8px rgba(0,0,0,.35);
-  backdrop-filter: blur(8px);
-  z-index: 100;
-  text-decoration: none;
-  user-select: none;
-  touch-action: none;
-  transition: background var(--anim), box-shadow var(--anim);
-  will-change: transform, left, top;
-}
+/* ③ 群组列表右下角浮动帮助按钮 */
 
-#fab-help:hover {
-  background: rgba(56,139,253,1);
-  box-shadow: 0 10px 28px rgba(56,139,253,.55), 0 2px 8px rgba(0,0,0,.35);
-}
 
-#fab-help:active,
-#fab-help.dragging {
-  cursor: grabbing;
-  transform: scale(1.08);
-  box-shadow: 0 12px 32px rgba(56,139,253,.6), 0 4px 12px rgba(0,0,0,.45);
-}
-
-@media (max-width: 580px) {
-  #fab-help {
-    right: 16px;
-    bottom: 85px;
-  }
-}
-
-/* 其他样式保持不变（chat-list、chat-view、messages 等） */
 .chat-list {
   width: 226px;
   flex-shrink: 0;
   border-right: 1px solid var(--border);
   overflow-y: auto;
+  /* ③ 群组/联系人壁纸提亮 */
   background: rgba(13,17,23,0.28);
   backdrop-filter: blur(3px);
 }
@@ -361,6 +332,7 @@ body.app-active #bg-overlay {
   font-weight: 700;
   flex-shrink: 0;
   color: #d6eaff;
+  letter-spacing: .02em;
 }
 .avatar-contact {
   background: linear-gradient(135deg, #1e3a5f, #2a5298);
@@ -383,12 +355,14 @@ body.app-active #bg-overlay {
   text-overflow: ellipsis;
 }
 
+/* ── Chat View ────────────────────────────────────── */
 .chat-view {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-width: 0;
   overflow: hidden;
+  /* ③ 群组/联系人壁纸提亮 */
   background: rgba(13,17,23,0.22);
   backdrop-filter: blur(4px);
 }
@@ -429,6 +403,7 @@ body.app-active #bg-overlay {
 .messages::-webkit-scrollbar { width: 4px; }
 .messages::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
 
+/* 消息气泡 */
 .bubble {
   max-width: 76%;
   padding: 8px 13px;
@@ -474,6 +449,7 @@ body.app-active #bg-overlay {
   opacity: .75;
 }
 
+/* 系统消息 */
 .sys-msg {
   align-self: center;
   font-size: .7rem;
@@ -527,10 +503,11 @@ body.app-active #bg-overlay {
 }
 .empty-icon { font-size: 2.8rem; opacity: .6; }
 
-/* 频道发布 */
+/* ── 频道发布 ────────────────────────────────────── */
 .channels-wrap {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 16px 16px 200px;
   display: flex;
   flex-direction: column;
@@ -548,12 +525,29 @@ body.app-active #bg-overlay {
   padding: 2px 2px 0;
 }
 
+.ch-intro blockquote {
+  background: rgba(56,139,253,.07);
+  border-left: 3px solid var(--accent2);
+  padding: 10px 14px;
+  font-size: .82rem;
+  color: var(--text2);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  line-height: 1.5;
+  margin: 4px 0 8px 0;
+}
+
 .ch-card {
   background: rgba(22,27,34,0.45);
   border: 1px solid rgba(255,255,255,.10);
   border-radius: var(--radius);
   overflow: hidden;
+  flex-shrink: 0;
   backdrop-filter: blur(4px);
+  transition: border-color var(--anim), box-shadow var(--anim);
+}
+.ch-card:focus-within {
+  border-color: var(--accent2);
+  box-shadow: 0 0 0 3px rgba(56,139,253,.10);
 }
 .ch-card-head {
   padding: 12px 14px;
@@ -597,6 +591,7 @@ body.app-active #bg-overlay {
   resize: vertical;
   min-height: 86px;
   outline: none;
+  font-family: inherit;
   line-height: 1.5;
   transition: border-color var(--anim), box-shadow var(--anim);
 }
@@ -606,12 +601,14 @@ body.app-active #bg-overlay {
 }
 .ch-send-btn-row { display: flex; justify-content: flex-end; gap: 8px; }
 
+/* 只监听频道 */
 .ch-card-link {
   display: block;
   background: rgba(22,27,34,0.80);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
+  flex-shrink: 0;
   text-decoration: none;
   color: inherit;
   transition: border-color var(--anim), background var(--anim), transform var(--anim);
@@ -648,6 +645,7 @@ body.app-active #bg-overlay {
 }
 .ch-card-link:hover .ch-link-arrow { opacity: 1; transform: translateX(3px); }
 
+/* ── 联系人私聊样式 ───────────────────────────────── */
 .contact-header-badge {
   font-size: .68rem;
   color: var(--accent);
@@ -658,7 +656,7 @@ body.app-active #bg-overlay {
   font-weight: 600;
 }
 
-/* Toast */
+/* ── Toast ────────────────────────────────────────── */
 #toast {
   position: fixed;
   bottom: 26px;
@@ -680,20 +678,24 @@ body.app-active #bg-overlay {
   box-shadow: 0 8px 30px rgba(0,0,0,.5);
 }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#toast .t-icon { margin-right: 6px; }
 
-/* 滚动条 */
+/* ── 滚动条全局 ─────────────────────────────────── */
 ::-webkit-scrollbar       { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
 
+/* ── Mobile ─────────────────────────────────────── */
 @media (max-width: 580px) {
   .chat-list       { width: 100%; }
   .chat-list.hide  { display: none; }
   .chat-view.hide  { display: none; }
   .back-btn        { display: block !important; }
   .channels-wrap   { padding-bottom: 240px; }
+  .ch-send-btn-row { justify-content: stretch; }
   .ch-send-btn-row .btn { width: 100%; }
   .bubble { max-width: 88%; }
+  .fab-help { right: 14px; bottom: 16px; }
 }
 </style>
 </head>
@@ -748,6 +750,8 @@ body.app-active #bg-overlay {
           <div>从左侧选择一个群组</div>
         </div>
       </div>
+      <!-- ③ 帮助浮动按钮 -->
+      <a class="fab-help" href="help.html" target="_blank" rel="noopener noreferrer" title="帮助文档">?</a>
     </div>
   </div>
 
@@ -761,6 +765,8 @@ body.app-active #bg-overlay {
           <div>从左侧选择一个群组</div>
         </div>
       </div>
+      <!-- ③ 帮助浮动按钮 -->
+      
     </div>
   </div>
 
@@ -777,6 +783,8 @@ body.app-active #bg-overlay {
           </div>
         </div>
       </div>
+      <!-- ③ 帮助浮动按钮 -->
+      <a class="fab-help" href="help.html" target="_blank" rel="noopener noreferrer" title="帮助文档">?</a>
     </div>
   </div>
 
@@ -784,9 +792,6 @@ body.app-active #bg-overlay {
   <div class="tab-content" id="tab-channels">
     <div class="channels-wrap" id="channels-wrap"></div>
   </div>
-
-  <!-- 全局悬浮按钮（三个页面共用） -->
-  <a id="fab-help" class="fab-help" href="help.html" target="_blank" rel="noopener noreferrer" title="帮助文档">?</a>
 </div>
 
 <div id="toast"></div>
@@ -798,9 +803,10 @@ let KEY    = '';
 let CFG    = { private: [], public: [], channels: [], contacts: [] };
 let timers = {};
 
-// ── 壁纸加载 + 入场序列 ───────────────────────────────
+// ── ② 壁纸加载 + 入场序列 ───────────────────────────────
 (function initBg() {
-  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth < 768;
+  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
+                || window.innerWidth < 768;
   const imgFile = isMobile ? 'f1.jpg' : 'f2.jpg';
   const bgLayer   = document.getElementById('bg-layer');
   const bgOverlay = document.getElementById('bg-overlay');
@@ -809,17 +815,24 @@ let timers = {};
   const img = new Image();
   img.onload = () => {
     bgLayer.style.backgroundImage = `url('${imgFile}')`;
+
+    // Step 1：壁纸淡入（清晰、明亮）
     bgLayer.classList.add('loaded');
 
+    // Step 2：5 秒后——壁纸开始模糊 + 遮罩加深 + 登录卡片飘入
     setTimeout(() => {
       bgLayer.classList.add('blurred');
       bgOverlay.classList.add('dimmed');
+      // 稍微错开 100ms 让卡片动画略晚于壁纸变化，视觉更流畅
       setTimeout(() => {
         authCard.classList.add('visible');
       }, 100);
     }, 3000);
   };
-  img.onerror = () => authCard.classList.add('visible');
+  img.onerror = () => {
+    // 图片加载失败则直接显示卡片
+    authCard.classList.add('visible');
+  };
   img.src = imgFile;
 })();
 
@@ -828,15 +841,19 @@ const esc = s => String(s || '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .replace(/\n/g, '<br>');
 
-const fmtTime = ts => new Date(ts * 1000).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+const fmtTime = ts => new Date(ts * 1000)
+  .toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+
 const fmtDate = ts => {
-  const d = new Date(ts * 1000);
+  const d   = new Date(ts * 1000);
   const now = new Date();
   if (d.toDateString() === now.toDateString()) return fmtTime(ts);
   return `${d.getMonth()+1}/${d.getDate()} ${fmtTime(ts)}`;
 };
 
-const initials = name => name.replace(/[\s（()【[\]】@]/g, '').slice(0, 2).toUpperCase() || '??';
+const initials = name =>
+  name.replace(/[\s（()【[\]】@]/g, '').slice(0, 2).toUpperCase() || '??';
+
 const tgUrl = id => `https://t.me/${String(id).replace(/^@/, '')}`;
 const safeId = id => String(id).replace(/[^a-z0-9]/gi, '_');
 
@@ -860,15 +877,8 @@ function toast(msg, ok = true) {
   setTimeout(() => el.classList.remove('show'), 2800);
 }
 
-// ── 按钮点击动效 ──────────────────────
-function tapBtn(btn, cb, delay = 140) {
-  if (btn.disabled) return;
-  btn.classList.add('tap-active');
-  setTimeout(() => {
-    btn.classList.remove('tap-active');
-    cb();
-  }, delay);
-}
+// ── 按钮点击动效（短暂变色再执行） ──────────────────────
+
 
 // ── 鉴权 ─────────────────────────────────────────────────
 const savedUrl = localStorage.getItem('wUrl') || '';
@@ -917,12 +927,13 @@ document.getElementById('logout-btn').addEventListener('click', function() {
   });
 });
 
-// 自动登录
+// 自动登录（已有会话时跳过壁纸欣赏，直接进入）
 (async () => {
   const sk = sessionStorage.getItem('sk');
   const wu = localStorage.getItem('wUrl');
   if (sk && wu) {
     WORKER = wu; KEY = sk;
+    // 自动登录时立刻显示卡片（不等5秒），并直接 boot
     const bgLayer   = document.getElementById('bg-layer');
     const bgOverlay = document.getElementById('bg-overlay');
     const authCard  = document.getElementById('auth-card');
@@ -952,6 +963,8 @@ async function boot() {
 
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
+
+  // ③ 登录后：壁纸提亮（通过 body class 控制）
   document.body.classList.add('app-active');
 
   buildList('list-private',  CFG.private,   'view-private',  'private');
@@ -960,7 +973,7 @@ async function boot() {
   buildChannels();
 }
 
-// ── 群组列表 & 联系人列表 & 打开聊天等函数（保持不变）──
+// ── 群组列表 ─────────────────────────────────────────────
 function buildList(listId, chats, viewId, type) {
   const list = document.getElementById(listId);
   list.innerHTML = '';
@@ -986,11 +999,15 @@ function buildList(listId, chats, viewId, type) {
   });
 }
 
+// ── 联系人列表 ───────────────────────────────────────────
 function buildContactList() {
   const list = document.getElementById('list-contacts');
   list.innerHTML = '';
   if (!CFG.contacts || !CFG.contacts.length) {
-    list.innerHTML = `<div style="padding:18px 14px;color:var(--muted);font-size:.8rem;text-align:center;line-height:1.6">暂无联系人<br>在 worker.js 的 contacts 中添加</div>`;
+    list.innerHTML = `
+      <div style="padding:18px 14px;color:var(--muted);font-size:.8rem;text-align:center;line-height:1.6">
+        暂无联系人<br>在 worker.js 的<br>contacts 中添加
+      </div>`;
     return;
   }
   CFG.contacts.forEach(contact => {
@@ -1011,6 +1028,7 @@ function buildContactList() {
   });
 }
 
+// ── 打开聊天窗口 ─────────────────────────────────────────
 function openChat(listId, viewId, chat, type) {
   const list = document.getElementById(listId);
   const view = document.getElementById(viewId);
@@ -1019,9 +1037,9 @@ function openChat(listId, viewId, chat, type) {
 
   if (timers[type]) clearInterval(timers[type]);
 
-  const sid = safeId(chat.id);
+  const sid      = safeId(chat.id);
   const isContact = type === 'contacts';
-  const subtitle = isContact ? '私聊联系人' : esc(chat.id);
+  const subtitle  = isContact ? '私聊联系人' : esc(chat.id);
 
   view.innerHTML = `
     <div class="chat-view-header">
@@ -1040,8 +1058,10 @@ function openChat(listId, viewId, chat, type) {
       <div class="sys-msg">加载消息中…</div>
     </div>
     <div class="send-bar">
-      <textarea id="ta-${sid}" placeholder="${isContact ? '给 ' + chat.name + ' 发私信…' : '输入消息，Enter 发送，Shift+Enter 换行'}" 
-        rows="1" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" 
+      <textarea id="ta-${sid}"
+        placeholder="${isContact ? '给 ' + chat.name + ' 发私信…' : '输入消息，Enter 发送，Shift+Enter 换行'}"
+        rows="1"
+        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
         onkeydown="sendKey(event,'${chat.id}','${sid}')"></textarea>
       <button class="btn" id="sbtn-${sid}" onclick="doSendBtn('${chat.id}','${sid}')">发送</button>
     </div>`;
@@ -1055,6 +1075,7 @@ function backToList(listId, viewId) {
   document.getElementById(viewId).classList.add('hide');
 }
 
+// ── 获取消息（无新消息时完全不操作 DOM，彻底解决闪屏） ─────
 async function fetchMsgs(chatId) {
   const sid = safeId(chatId);
   const box = document.getElementById('msgs-' + sid);
@@ -1062,26 +1083,34 @@ async function fetchMsgs(chatId) {
 
   try {
     const msgs = await api('/api/messages?chatId=' + encodeURIComponent(chatId));
-    let html = !Array.isArray(msgs) || !msgs.length 
-      ? `<div class="sys-msg">暂无消息 · 确保机器人已加入并关闭隐私模式</div>`
-      : msgs.slice().reverse().map(m => {
-          const sent = (m.from || '').includes('【Web发送】');
-          const extra = !sent && m.from && m.from.includes('(@') ? 'bubble-contact' : '';
-          return `<div class="bubble ${sent ? 'bubble-sent' : 'bubble-recv'} ${extra}">
-            ${!sent ? `<div class="bubble-from">${esc(m.from)}</div>` : ''}
-            <div class="bubble-text">${esc(m.text)}</div>
-            <div class="bubble-time">${fmtDate(m.date)}</div>
-          </div>`;
-        }).join('');
 
+    let html;
+    if (!Array.isArray(msgs) || !msgs.length) {
+      html = `<div class="sys-msg">暂无消息 · 确保机器人已加入并关闭隐私模式</div>`;
+    } else {
+      html = msgs.slice().reverse().map(m => {
+        const sent    = (m.from || '').includes('【Web发送】');
+        const extra   = !sent && m.from && m.from.includes('(@') ? 'bubble-contact' : '';
+        return `<div class="bubble ${sent ? 'bubble-sent' : 'bubble-recv'} ${extra}">
+          ${!sent ? `<div class="bubble-from">${esc(m.from)}</div>` : ''}
+          <div class="bubble-text">${esc(m.text)}</div>
+          <div class="bubble-time">${fmtDate(m.date)}</div>
+        </div>`;
+      }).join('');
+    }
+
+    // 只有内容真正变化时才更新 DOM → 彻底解决每 5 秒闪屏
     if (box.innerHTML !== html) {
       const atBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 60;
       box.innerHTML = html;
-      if (atBottom || box.scrollHeight < 400) box.scrollTop = box.scrollHeight;
+      if (atBottom || box.scrollHeight < 400) {
+        box.scrollTop = box.scrollHeight;
+      }
     }
   } catch {}
 }
 
+// ── 发送 ─────────────────────────────────────────────────
 function sendKey(e, chatId, sid) {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
@@ -1096,8 +1125,8 @@ function doSendBtn(chatId, sid) {
 }
 
 async function doSend(chatId, sid) {
-  const ta = document.getElementById('ta-' + sid);
-  const btn = document.getElementById('sbtn-' + sid);
+  const ta   = document.getElementById('ta-' + sid);
+  const btn  = document.getElementById('sbtn-' + sid);
   if (!ta) return;
   const text = ta.value.trim();
   if (!text) return;
@@ -1111,6 +1140,7 @@ async function doSend(chatId, sid) {
   if (btn) { btn.disabled = false; btn.textContent = '发送'; }
 }
 
+// ── 清空聊天记录 ─────────────────────────────────────────
 async function clearChat(chatId) {
   const sid = safeId(chatId);
   const box = document.getElementById('msgs-' + sid);
@@ -1132,7 +1162,7 @@ function buildChannels() {
   if (sendable.length) {
     appendSectionTitle(wrap, '📤 可发布频道');
     sendable.forEach(ch => {
-      const sid = safeId(ch.id);
+      const sid  = safeId(ch.id);
       const card = document.createElement('div');
       card.className = 'ch-card';
       card.innerHTML = `
@@ -1148,7 +1178,9 @@ function buildChannels() {
           <textarea id="cht-${sid}" placeholder="输入要发布到「${esc(ch.name)}」的内容…"></textarea>
           <div class="ch-send-btn-row">
             <button class="btn btn-ghost btn-sm" onclick="clearChTA('${sid}')">清空</button>
-            <button class="btn btn-green" id="csbtn-${sid}" onclick="sendChBtn('${ch.id}','${sid}')">📤 发布到频道</button>
+            <button class="btn btn-green" id="csbtn-${sid}" onclick="sendChBtn('${ch.id}','${sid}')">
+              📤 发布到频道
+            </button>
           </div>
         </div>`;
       wrap.appendChild(card);
@@ -1165,7 +1197,7 @@ function buildChannels() {
 
     readonly.forEach(ch => {
       const url = tgUrl(ch.id);
-      const a = document.createElement('a');
+      const a   = document.createElement('a');
       a.className = 'ch-card-link';
       a.href = url;
       a.target = '_blank';
@@ -1213,7 +1245,7 @@ function sendChBtn(chatId, sid) {
 }
 
 async function sendCh(chatId, sid) {
-  const ta = document.getElementById('cht-' + sid);
+  const ta  = document.getElementById('cht-' + sid);
   const btn = document.getElementById('csbtn-' + sid);
   const text = ta ? ta.value.trim() : '';
   if (!text) { toast('请输入发布内容', false); return; }
@@ -1225,135 +1257,6 @@ async function sendCh(chatId, sid) {
   } catch { toast('网络错误', false); }
   if (btn) { btn.disabled = false; btn.textContent = '📤 发布到频道'; }
 }
-
-// ── 可拖动悬浮按钮 + 位置同步（核心功能） ───────────────────────────────
-function makeFabDraggable() {
-  const fab = document.getElementById('fab-help');
-  if (!fab) return;
-
-  let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-  let isDragging = false;
-
-  // 恢复保存的位置
-  function restorePosition() {
-    const saved = localStorage.getItem('fabPosition');
-    if (saved) {
-      try {
-        const { left, top } = JSON.parse(saved);
-        fab.style.left = left + 'px';
-        fab.style.top = top + 'px';
-        fab.style.right = 'auto';
-        fab.style.bottom = 'auto';
-      } catch(e) {}
-    }
-  }
-
-  // 保存当前位置
-  function savePosition() {
-    const rect = fab.getBoundingClientRect();
-    localStorage.setItem('fabPosition', JSON.stringify({
-      left: rect.left,
-      top: rect.top
-    }));
-  }
-
-  restorePosition();
-
-  fab.addEventListener('mousedown', dragMouseDown);
-  fab.addEventListener('touchstart', dragTouchStart, { passive: false });
-
-  function dragMouseDown(e) {
-    if (e.button !== 0) return;
-    e.preventDefault();
-    isDragging = true;
-    fab.classList.add('dragging');
-
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-
-    document.addEventListener('mousemove', elementDrag);
-    document.addEventListener('mouseup', closeDragElement, { once: true });
-  }
-
-  function dragTouchStart(e) {
-    if (e.touches.length !== 1) return;
-    e.preventDefault();
-    isDragging = true;
-    fab.classList.add('dragging');
-
-    pos3 = e.touches[0].clientX;
-    pos4 = e.touches[0].clientY;
-
-    document.addEventListener('touchmove', elementDragTouch, { passive: false });
-    document.addEventListener('touchend', closeDragElement, { once: true });
-  }
-
-  function elementDrag(e) {
-    if (!isDragging) return;
-    e.preventDefault();
-
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-
-    let newTop = (parseFloat(fab.style.top) || fab.offsetTop || 0) - pos2;
-    let newLeft = (parseFloat(fab.style.left) || fab.offsetLeft || 0) - pos1;
-
-    newTop = Math.max(20, Math.min(newTop, window.innerHeight - 68));
-    newLeft = Math.max(20, Math.min(newLeft, window.innerWidth - 68));
-
-    fab.style.top = newTop + 'px';
-    fab.style.left = newLeft + 'px';
-    fab.style.right = 'auto';
-    fab.style.bottom = 'auto';
-  }
-
-  function elementDragTouch(e) {
-    if (!isDragging || e.touches.length !== 1) return;
-    e.preventDefault();
-
-    pos1 = pos3 - e.touches[0].clientX;
-    pos2 = pos4 - e.touches[0].clientY;
-    pos3 = e.touches[0].clientX;
-    pos4 = e.touches[0].clientY;
-
-    let newTop = (parseFloat(fab.style.top) || fab.offsetTop || 0) - pos2;
-    let newLeft = (parseFloat(fab.style.left) || fab.offsetLeft || 0) - pos1;
-
-    newTop = Math.max(20, Math.min(newTop, window.innerHeight - 68));
-    newLeft = Math.max(20, Math.min(newLeft, window.innerWidth - 68));
-
-    fab.style.top = newTop + 'px';
-    fab.style.left = newLeft + 'px';
-    fab.style.right = 'auto';
-    fab.style.bottom = 'auto';
-  }
-
-  function closeDragElement() {
-    isDragging = false;
-    fab.classList.remove('dragging');
-    savePosition();
-  }
-
-  // 窗口大小改变时调整位置
-  window.addEventListener('resize', () => {
-    if (fab.style.left && fab.style.top) {
-      let top = parseFloat(fab.style.top);
-      let left = parseFloat(fab.style.left);
-      top = Math.max(20, Math.min(top, window.innerHeight - 68));
-      left = Math.max(20, Math.min(left, window.innerWidth - 68));
-      fab.style.top = top + 'px';
-      fab.style.left = left + 'px';
-    }
-  });
-}
-
-// 初始化拖动功能
-window.addEventListener('load', makeFabDraggable);
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => setTimeout(makeFabDraggable, 100));
-});
 </script>
 </body>
 </html>
