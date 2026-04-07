@@ -297,10 +297,11 @@ body.app-active #bg-overlay {
 }
 
 /* ③ 群组列表右下角浮动帮助按钮 */
+/* ── 可拖动悬浮帮助按钮 ─────────────────────────────────────────── */
 .fab-help {
   position: absolute;
   right: 20px;
-  bottom: 90px;           /* 你想要的高度，保持 90px 或再调高到 100px */
+  bottom: 90px;           /* 默认起始位置，可自行修改 */
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -311,36 +312,40 @@ body.app-active #bg-overlay {
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  cursor: grab;
   box-shadow: 0 6px 22px rgba(56,139,253,.40), 0 2px 8px rgba(0,0,0,.35);
   backdrop-filter: blur(8px);
-  z-index: 30;            /* 提高 z-index，避免被其他层盖住 */
+  z-index: 30;
   text-decoration: none;
-  transition: background var(--anim), transform 120ms ease, box-shadow var(--anim);
   user-select: none;
-  
-  /* 增加 will-change 提升性能，减少重排抖动 */
-  will-change: transform;
+  touch-action: none;           /* 提升移动端触摸体验 */
+  transition: background var(--anim), box-shadow var(--anim);
+  will-change: transform, left, top;   /* 拖动性能优化 */
+}
+
+.fab-help:hover {
+  background: rgba(56,139,253,1);
+  box-shadow: 0 10px 28px rgba(56,139,253,.55), 0 2px 8px rgba(0,0,0,.35);
+}
+
+.fab-help:active,
+.fab-help.dragging {
+  cursor: grabbing;
+  transform: scale(1.08);
+  box-shadow: 0 12px 32px rgba(56,139,253,.6), 0 4px 12px rgba(0,0,0,.45);
 }
 
 /* 移动端适配 */
 @media (max-width: 580px) {
   .fab-help {
-    bottom: 85px;         /* 移动端可单独微调 */
     right: 16px;
+    bottom: 85px;
   }
 }
-.fab-help:hover {
-  background: rgba(56,139,253,1);
-  transform: translateY(-2px) scale(1.07);
-  box-shadow: 0 10px 28px rgba(56,139,253,.55), 0 2px 8px rgba(0,0,0,.35);
-}
-.fab-help:active {
-  transform: scale(.95);
-}
-/* 悬停时显示 tooltip */
+
+/* 悬停时显示 tooltip（拖动时不显示） */
 .fab-help::before {
-  content: '帮助文档';
+  content: '关于';
   position: absolute;
   right: calc(100% + 10px);
   top: 50%;
@@ -357,7 +362,10 @@ body.app-active #bg-overlay {
   pointer-events: none;
   transition: opacity 0.2s ease;
 }
-.fab-help:hover::before { opacity: 1; }
+
+.fab-help:hover::before { 
+  opacity: 1; 
+  }
 
 .chat-list {
   width: 226px;
@@ -1330,14 +1338,95 @@ async function sendCh(chatId, sid) {
   if (btn) { btn.disabled = false; btn.textContent = '📤 发布到频道'; }
 }
 // 修复移动端布局跳动 & 壁纸/按钮位置问题
-window.addEventListener('load', () => {
-  // 轻微强制重排
-  document.body.style.height = '100dvh';
-  
-  // 监听 resize（地址栏/键盘出现时）
-  window.addEventListener('resize', () => {
-    document.getElementById('bg-layer').style.height = '100dvh';
+// ── 可拖动悬浮按钮功能 ───────────────────────────────
+function makeFabDraggable() {
+  document.querySelectorAll('.fab-help').forEach(fab => {
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    let isDragging = false;
+
+    fab.addEventListener('mousedown', dragMouseDown);
+    fab.addEventListener('touchstart', dragTouchStart, { passive: false });
+
+    function dragMouseDown(e) {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      isDragging = true;
+      fab.classList.add('dragging');
+
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+
+      document.addEventListener('mousemove', elementDrag);
+      document.addEventListener('mouseup', closeDragElement, { once: true });
+    }
+
+    function dragTouchStart(e) {
+      if (e.touches.length !== 1) return;
+      e.preventDefault();
+      isDragging = true;
+      fab.classList.add('dragging');
+
+      pos3 = e.touches[0].clientX;
+      pos4 = e.touches[0].clientY;
+
+      document.addEventListener('touchmove', elementDragTouch, { passive: false });
+      document.addEventListener('touchend', closeDragElement, { once: true });
+    }
+
+    function elementDrag(e) {
+      if (!isDragging) return;
+      e.preventDefault();
+
+      pos1 = pos3 - e.clientX;
+      pos2 = pos4 - e.clientY;
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+
+      let newTop = (fab.offsetTop || parseFloat(fab.style.top) || 0) - pos2;
+      let newLeft = (fab.offsetLeft || parseFloat(fab.style.left) || 0) - pos1;
+
+      // 限制不飞出屏幕
+      newTop = Math.max(20, Math.min(newTop, window.innerHeight - 68));
+      newLeft = Math.max(20, Math.min(newLeft, window.innerWidth - 68));
+
+      fab.style.top = newTop + 'px';
+      fab.style.left = newLeft + 'px';
+      fab.style.right = 'auto';
+      fab.style.bottom = 'auto';
+    }
+
+    function elementDragTouch(e) {
+      if (!isDragging || e.touches.length !== 1) return;
+      e.preventDefault();
+
+      pos1 = pos3 - e.touches[0].clientX;
+      pos2 = pos4 - e.touches[0].clientY;
+      pos3 = e.touches[0].clientX;
+      pos4 = e.touches[0].clientY;
+
+      let newTop = (fab.offsetTop || parseFloat(fab.style.top) || 0) - pos2;
+      let newLeft = (fab.offsetLeft || parseFloat(fab.style.left) || 0) - pos1;
+
+      newTop = Math.max(20, Math.min(newTop, window.innerHeight - 68));
+      newLeft = Math.max(20, Math.min(newLeft, window.innerWidth - 68));
+
+      fab.style.top = newTop + 'px';
+      fab.style.left = newLeft + 'px';
+      fab.style.right = 'auto';
+      fab.style.bottom = 'auto';
+    }
+
+    function closeDragElement() {
+      isDragging = false;
+      fab.classList.remove('dragging');
+    }
   });
+}
+
+// 初始化拖动（页面加载 + 切换 tab 时）
+window.addEventListener('load', makeFabDraggable);
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => setTimeout(makeFabDraggable, 80));
 });
 </script>
 </body>
