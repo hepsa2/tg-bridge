@@ -56,14 +56,37 @@ body {
   z-index: 0;
   opacity: 0;
   transition: opacity 1s ease;
+  filter: blur(0px) brightness(1);
+  /* 进入模糊状态时平滑过渡 */
+  transition: opacity 1s ease, filter 1.2s ease;
 }
 #bg-layer.loaded { opacity: 1; }
+/* 壁纸模糊状态（登录卡片出现时触发） */
+#bg-layer.blurred {
+  filter: blur(6px) brightness(0.75);
+}
+
+/* 登录后的应用壁纸——提亮 */
+body.app-active #bg-layer {
+  filter: blur(3px) brightness(1.10) !important;
+}
+
 #bg-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(13,17,23,0.20);          /* ← 调亮：原来 0.78 → 0.40 */
+  background: rgba(13,17,23,0.20);
   backdrop-filter: blur(1px);
   z-index: 1;
+  transition: background 1s ease;
+}
+/* 登录卡片出现时加深遮罩一点 */
+#bg-overlay.dimmed {
+  background: rgba(13,17,23,0.38);
+}
+/* 登录后应用视图——更亮 */
+body.app-active #bg-overlay {
+  background: rgba(13,17,23,0.08) !important;
+  backdrop-filter: none;
 }
 
 /* ── 所有主内容在壁纸之上 ─────────────────────────── */
@@ -80,16 +103,32 @@ body {
   height: 100%;
   padding: 20px;
 }
+
+/* 登录卡片初始隐藏，等壁纸欣赏完毕后飘入 */
 .auth-card {
-  background: rgba(22,27,34,0.52);
-  border: 1px solid var(--border2);
+  background: rgba(22,27,34,0.38);
+  border: 1px solid rgba(255,255,255,0.14);
   border-radius: var(--radius-xl);
   padding: 38px 30px 32px;
   width: 100%;
   max-width: 400px;
-  backdrop-filter: blur(15px);
-  box-shadow: 0 24px 60px rgba(0,0,0,.5);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 24px 60px rgba(0,0,0,.45);
+
+  /* 初始：透明 + 向下偏移 */
+  opacity: 0;
+  transform: translateY(28px) scale(0.97);
+  pointer-events: none;
+  transition: opacity 0.8s cubic-bezier(.22,1,.36,1),
+              transform 0.8s cubic-bezier(.22,1,.36,1);
 }
+/* 登录卡片出现状态 */
+.auth-card.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
 .auth-logo { font-size: 2.2rem; margin-bottom: 10px; }
 .auth-card h1 { font-size: 1.25rem; margin-bottom: 4px; color: var(--text); font-weight: 700; }
 .auth-card p  { color: var(--muted); font-size: .84rem; margin-bottom: 28px; line-height: 1.5; }
@@ -98,24 +137,27 @@ body {
 .field label {
   display: block;
   font-size: .7rem;
-  color: var(--muted);
+  color: rgba(173,186,199,0.75);
   text-transform: uppercase;
   letter-spacing: .07em;
   margin-bottom: 2px;
   font-weight: 600;
 }
+/* ① 输入框改为透明玻璃风格 */
 .field input {
   width: 100%;
-  background: var(--surface2);
-  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
   border-radius: var(--radius-sm);
   color: var(--text);
   padding: 10px 14px;
   font-size: .93rem;
   outline: none;
-  transition: border-color var(--anim), box-shadow var(--anim);
+  transition: border-color var(--anim), box-shadow var(--anim), background var(--anim);
 }
+.field input::placeholder { color: rgba(118,131,144,0.7); }
 .field input:focus {
+  background: rgba(255,255,255,0.13);
   border-color: var(--accent2);
   box-shadow: 0 0 0 3px rgba(56,139,253,.18);
 }
@@ -235,19 +277,78 @@ body {
 .tab-content { display: none; flex: 1; overflow: hidden; }
 .tab-content.active {
   display: flex;
-  background: rgba(13,17,23,0.35);    /* ← 新增：统一亮度与频道页一致 */
+  background: rgba(13,17,23,0.35);
   backdrop-filter: blur(3px);
 }
 
 /* ── Chat layout ──────────────────────────────────── */
-.chat-layout { display: flex; width: 100%; height: 100%; overflow: hidden; }
+.chat-layout {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative; /* ③ 让浮动按钮相对于此定位 */
+}
+
+/* ③ 群组列表右下角浮动帮助按钮 */
+.fab-help {
+  position: absolute;
+  right: 20px;
+  bottom: 22px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(56,139,253,0.82);
+  border: 1.5px solid rgba(121,192,255,0.45);
+  color: #fff;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 6px 22px rgba(56,139,253,.40), 0 2px 8px rgba(0,0,0,.35);
+  backdrop-filter: blur(8px);
+  z-index: 20;
+  text-decoration: none;
+  transition: background var(--anim), transform 120ms ease, box-shadow var(--anim);
+  user-select: none;
+}
+.fab-help:hover {
+  background: rgba(56,139,253,1);
+  transform: translateY(-2px) scale(1.07);
+  box-shadow: 0 10px 28px rgba(56,139,253,.55), 0 2px 8px rgba(0,0,0,.35);
+}
+.fab-help:active {
+  transform: scale(.95);
+}
+/* 悬停时显示 tooltip */
+.fab-help::before {
+  content: '帮助文档';
+  position: absolute;
+  right: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(22,27,34,0.92);
+  color: var(--text);
+  font-size: .72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.fab-help:hover::before { opacity: 1; }
 
 .chat-list {
   width: 226px;
   flex-shrink: 0;
   border-right: 1px solid var(--border);
   overflow-y: auto;
-  background: rgba(13,17,23,0.35);          /* ← 调亮 + 让壁纸透出：原来 0.70 → 0.45 */
+  /* ③ 群组/联系人壁纸提亮 */
+  background: rgba(13,17,23,0.28);
   backdrop-filter: blur(3px);
 }
 .chat-list::-webkit-scrollbar { width: 4px; }
@@ -309,12 +410,13 @@ body {
   flex-direction: column;
   min-width: 0;
   overflow: hidden;
-  background: rgba(13,17,23,0.35);          /* ← 调亮 + 让壁纸透出：原来 0.55 → 0.35 */
-  backdrop-filter: blur(6px);
+  /* ③ 群组/联系人壁纸提亮 */
+  background: rgba(13,17,23,0.22);
+  backdrop-filter: blur(4px);
 }
 .chat-view-header {
   padding: 10px 14px;
-  background: rgba(22,27,34,0.82);
+  background: rgba(22,27,34,0.75);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -408,7 +510,7 @@ body {
 
 .send-bar {
   padding: 9px 12px;
-  background: rgba(22,27,34,0.88);
+  background: rgba(22,27,34,0.82);
   border-top: 1px solid var(--border);
   display: flex;
   gap: 9px;
@@ -483,8 +585,8 @@ body {
 }
 
 .ch-card {
-  background: rgba(22,27,34,0.45);         /* ← 从 0.85 → 0.45 */
-  border: 1px solid rgba(255,255,255,.10); /* ← 更浅 */
+  background: rgba(22,27,34,0.45);
+  border: 1px solid rgba(255,255,255,.10);
   border-radius: var(--radius);
   overflow: hidden;
   flex-shrink: 0;
@@ -500,8 +602,8 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  border-bottom: 1px solid rgba(255,255,255,.08); /* 更浅 */
-  background: rgba(22,27,34,0.25);                 /* 比卡片主体稍亮 */
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  background: rgba(22,27,34,0.25);
 }
 .ch-card-head .info { flex: 1; min-width: 0; }
 .ch-card-head .info strong { display: block; font-size: .87rem; color: var(--text); }
@@ -528,7 +630,7 @@ body {
 }
 .ch-send-area textarea {
   width: 100%;
-  background: rgba(22,27,34,0.35);        /* ← 从不透明改为浅透明 */
+  background: rgba(22,27,34,0.35);
   border: 1px solid rgba(255,255,255,.15);
   border-radius: 10px;
   color: var(--text);
@@ -641,6 +743,7 @@ body {
   .ch-send-btn-row { justify-content: stretch; }
   .ch-send-btn-row .btn { width: 100%; }
   .bubble { max-width: 88%; }
+  .fab-help { right: 14px; bottom: 16px; }
 }
 </style>
 </head>
@@ -653,7 +756,7 @@ body {
 
 <!-- AUTH SCREEN -->
 <div id="auth-screen">
-  <div class="auth-card">
+  <div class="auth-card" id="auth-card">
     <div class="auth-logo">🔗</div>
     <h1>TG 桥接控制台</h1>
     <p>输入 Cloudflare Worker 地址和访问密钥</p>
@@ -682,7 +785,7 @@ body {
     <div class="tab active" data-tab="private">🔒 私密群组</div>
     <div class="tab" data-tab="public">🌐 公开群组</div>
     <div class="tab" data-tab="contacts">👤 联系人</div>
-    <div class="tab" data-tab="channels">📢 频道</div>
+    <div class="tab" data-tab="channels">📢 频道控制</div>
   </div>
 
   <!-- 私密群组 -->
@@ -695,6 +798,8 @@ body {
           <div>从左侧选择一个群组</div>
         </div>
       </div>
+      <!-- ③ 帮助浮动按钮 -->
+      <a class="fab-help" href="help.html" target="_blank" rel="noopener noreferrer" title="帮助文档">?</a>
     </div>
   </div>
 
@@ -708,6 +813,8 @@ body {
           <div>从左侧选择一个群组</div>
         </div>
       </div>
+      <!-- ③ 帮助浮动按钮 -->
+      <a class="fab-help" href="help.html" target="_blank" rel="noopener noreferrer" title="帮助文档">?</a>
     </div>
   </div>
 
@@ -724,6 +831,8 @@ body {
           </div>
         </div>
       </div>
+      <!-- ③ 帮助浮动按钮 -->
+      <a class="fab-help" href="help.html" target="_blank" rel="noopener noreferrer" title="帮助文档">?</a>
     </div>
   </div>
 
@@ -742,16 +851,35 @@ let KEY    = '';
 let CFG    = { private: [], public: [], channels: [], contacts: [] };
 let timers = {};
 
-// ── 壁纸加载 ─────────────────────────────────────────────
+// ── ② 壁纸加载 + 入场序列 ───────────────────────────────
 (function initBg() {
   const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
                 || window.innerWidth < 768;
   const imgFile = isMobile ? 'f1.jpg' : 'f2.jpg';
-  const bg = document.getElementById('bg-layer');
+  const bgLayer   = document.getElementById('bg-layer');
+  const bgOverlay = document.getElementById('bg-overlay');
+  const authCard  = document.getElementById('auth-card');
+
   const img = new Image();
   img.onload = () => {
-    bg.style.backgroundImage = `url('${imgFile}')`;
-    bg.classList.add('loaded');
+    bgLayer.style.backgroundImage = `url('${imgFile}')`;
+
+    // Step 1：壁纸淡入（清晰、明亮）
+    bgLayer.classList.add('loaded');
+
+    // Step 2：5 秒后——壁纸开始模糊 + 遮罩加深 + 登录卡片飘入
+    setTimeout(() => {
+      bgLayer.classList.add('blurred');
+      bgOverlay.classList.add('dimmed');
+      // 稍微错开 100ms 让卡片动画略晚于壁纸变化，视觉更流畅
+      setTimeout(() => {
+        authCard.classList.add('visible');
+      }, 100);
+    }, 5000);
+  };
+  img.onerror = () => {
+    // 图片加载失败则直接显示卡片
+    authCard.classList.add('visible');
   };
   img.src = imgFile;
 })();
@@ -849,15 +977,26 @@ document.getElementById('logout-btn').addEventListener('click', function() {
   tapBtn(this, () => {
     sessionStorage.removeItem('sk');
     Object.values(timers).forEach(clearInterval);
+    document.body.classList.remove('app-active');
     location.reload();
   });
 });
 
-// 自动登录
+// 自动登录（已有会话时跳过壁纸欣赏，直接进入）
 (async () => {
   const sk = sessionStorage.getItem('sk');
   const wu = localStorage.getItem('wUrl');
-  if (sk && wu) { WORKER = wu; KEY = sk; await boot().catch(() => {}); }
+  if (sk && wu) {
+    WORKER = wu; KEY = sk;
+    // 自动登录时立刻显示卡片（不等5秒），并直接 boot
+    const bgLayer   = document.getElementById('bg-layer');
+    const bgOverlay = document.getElementById('bg-overlay');
+    const authCard  = document.getElementById('auth-card');
+    bgLayer.classList.add('blurred');
+    bgOverlay.classList.add('dimmed');
+    authCard.classList.add('visible');
+    await boot().catch(() => {});
+  }
 })();
 
 // ── 标签切换 ─────────────────────────────────────────────
@@ -879,6 +1018,9 @@ async function boot() {
 
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
+
+  // ③ 登录后：壁纸提亮（通过 body class 控制）
+  document.body.classList.add('app-active');
 
   buildList('list-private',  CFG.private,   'view-private',  'private');
   buildList('list-public',   CFG.public,    'view-public',   'public');
@@ -988,7 +1130,7 @@ function backToList(listId, viewId) {
   document.getElementById(viewId).classList.add('hide');
 }
 
-// ── 获取消息（关键修复：无新消息时完全不操作 DOM，彻底解决闪屏） ─────────────────
+// ── 获取消息（无新消息时完全不操作 DOM，彻底解决闪屏） ─────
 async function fetchMsgs(chatId) {
   const sid = safeId(chatId);
   const box = document.getElementById('msgs-' + sid);
@@ -1172,4 +1314,4 @@ async function sendCh(chatId, sid) {
 }
 </script>
 </body>
-    </html>
+</html>
