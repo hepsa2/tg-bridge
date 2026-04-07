@@ -49,23 +49,28 @@ body {
 /* ── 壁纸层 ─────────────────────────────────────────── */
 #bg-layer {
   position: fixed;
-  inset: 0;
+  inset: 0;                    /* 确保完全覆盖 */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   z-index: 0;
   opacity: 0;
-  transition: opacity 1s ease;
-  filter: blur(0px) brightness(1);
-  /* 进入模糊状态时平滑过渡 */
   transition: opacity 1s ease, filter 1.2s ease;
+  
+  /* 提升清晰度和适配性 */
   filter: brightness(1.15) contrast(1.08) saturate(1.05);
+  will-change: filter;         /* 性能优化 */
 }
-#bg-layer.loaded { opacity: 1; }
-/* 壁纸模糊状态（登录卡片出现时触发） */
+
+#bg-layer.loaded { 
+  opacity: 1; 
+}
+
 #bg-layer.blurred {
-  filter: blur(6px) brightness(0.75);
+  filter: brightness(0.88) contrast(1.0) saturate(0.97) blur(6px);
 }
+
+/* 如果你之前加了 light-blur，也可以保留 */
 
 /* 登录后的应用壁纸——提亮 */
 body.app-active #bg-layer {
@@ -295,7 +300,7 @@ body.app-active #bg-overlay {
 .fab-help {
   position: absolute;
   right: 20px;
-  bottom: 90px;        /* 桌面端调高 */
+  bottom: 90px;           /* 你想要的高度，保持 90px 或再调高到 100px */
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -309,17 +314,20 @@ body.app-active #bg-overlay {
   cursor: pointer;
   box-shadow: 0 6px 22px rgba(56,139,253,.40), 0 2px 8px rgba(0,0,0,.35);
   backdrop-filter: blur(8px);
-  z-index: 20;
+  z-index: 30;            /* 提高 z-index，避免被其他层盖住 */
   text-decoration: none;
   transition: background var(--anim), transform 120ms ease, box-shadow var(--anim);
   user-select: none;
+  
+  /* 增加 will-change 提升性能，减少重排抖动 */
+  will-change: transform;
 }
 
-/* 移动端再额外调高一点，避免被键盘或底部栏遮挡 */
+/* 移动端适配 */
 @media (max-width: 580px) {
   .fab-help {
-    bottom: 200px;      /* 移动端可以再低一点或保持一致，根据需要调整 */
-    right: 14px;
+    bottom: 85px;         /* 移动端可单独微调 */
+    right: 16px;
   }
 }
 .fab-help:hover {
@@ -1321,6 +1329,16 @@ async function sendCh(chatId, sid) {
   } catch { toast('网络错误', false); }
   if (btn) { btn.disabled = false; btn.textContent = '📤 发布到频道'; }
 }
+// 修复移动端布局跳动 & 壁纸/按钮位置问题
+window.addEventListener('load', () => {
+  // 轻微强制重排
+  document.body.style.height = '100dvh';
+  
+  // 监听 resize（地址栏/键盘出现时）
+  window.addEventListener('resize', () => {
+    document.getElementById('bg-layer').style.height = '100dvh';
+  });
+});
 </script>
 </body>
 </html>
