@@ -295,7 +295,7 @@ body.app-active #bg-overlay {
 .fab-help {
   position: absolute;
   right: 20px;
-  bottom: 62px;
+  bottom: 90px;        /* 桌面端调高 */
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -313,6 +313,14 @@ body.app-active #bg-overlay {
   text-decoration: none;
   transition: background var(--anim), transform 120ms ease, box-shadow var(--anim);
   user-select: none;
+}
+
+/* 移动端再额外调高一点，避免被键盘或底部栏遮挡 */
+@media (max-width: 580px) {
+  .fab-help {
+    bottom: 80px;      /* 移动端可以再低一点或保持一致，根据需要调整 */
+    right: 14px;
+  }
 }
 .fab-help:hover {
   background: rgba(56,139,253,1);
