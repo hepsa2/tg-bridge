@@ -304,15 +304,32 @@ body {
   resultDiv.innerHTML = `验证中...`;
 
   try {
-    const response = await fetch('https://pqdheasjuagttpsppdqn.supabase.co/functions/v1/super-action', {
-      method: 'POST',                    // 大多数自定义函数建议用 POST
-      headers: {
-        'Content-Type': 'application/json',
-        // 如果你还在用 Authorization 头，可以加上下面这行（根据你的函数代码决定）：
-        // 'Authorization': `Bearer ${key}`
-      },
-      body: JSON.stringify({ key: key })   // 把密钥放在 body 里是最稳的方式
-    });
+  // 直接在 URL 里带上 key 参数
+  const url = `https://pqdheasjuagttpsppdqn.supabase.co/functions/v1/super-action?key=${encodeURIComponent(key)}`;
+  
+  // fetch 默认就是 GET
+  const response = await fetch(url);
+
+  const data = await response.json();
+
+  if (response.ok && data.token) {
+    // 成功逻辑
+    resultDiv.innerHTML = `
+      <strong style="color:#57ab5a;">✅ 获取成功</strong><br>
+      <span style="color:var(--accent);">Bot Token:</span><br>
+      <code style="background:rgba(0,0,0,.4); padding:8px; display:block; margin-top:8px; border-radius:6px;">
+        ${data.token}
+      </code>
+    `;
+  } else {
+    // 错误逻辑
+    resultDiv.innerHTML = `<span style="color:#f47067;">${data.message || '验证失败，请检查密钥'}</span>`;
+  }
+
+} catch (err) {
+  resultDiv.innerHTML = `<span style="color:#f47067;">网络错误，请稍后重试</span>`;
+  console.error(err);
+  }
 
     const data = await response.json();
 
