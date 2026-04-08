@@ -270,7 +270,7 @@ body {
   left: 0;
   min-width: 160px;
   /* 提高不透明度 + 更深的表面色 */
-  background: rgba(22, 27, 34, 0.98);        /* 从 0.96 提高到 0.98 */
+  background: var(--surface2);       /* 从 0.96 提高到 0.98 */
   /* 或者直接用不透明的 surface 色（推荐） */
   /* background: var(--surface2); */
 
@@ -278,7 +278,7 @@ body {
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: 0 12px 32px rgba(0,0,0,.65);   /* 阴影稍加强 */
-  backdrop-filter: blur(20px);               /* 可适当加大模糊 */
+  backdrop-filter: blur(10px);               /* 可适当加大模糊 */
   z-index: 9000;
 
   opacity: 0;
