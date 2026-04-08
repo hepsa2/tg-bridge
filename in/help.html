@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>使用帮助 - TG 桥接控制台</title>
+<style>
+:root {
+  --bg:        #0d1117;
+  --surface:   #161b22;
+  --surface2:  #1c2128;
+  --surface3:  #21262d;
+  --border:    #2d333b;
+  --border2:   #373e47;
+  --accent:    #79c0ff;
+  --accent2:   #388bfd;
+  --accent3:   #1158c7;
+  --text:      #cdd9e5;
+  --text2:     #adbac7;
+  --muted:     #768390;
+  --radius-sm: 8px;
+  --radius:    14px;
+  --radius-lg: 18px;
+  --radius-xl: 22px;
+  --anim:      180ms cubic-bezier(.4,0,.2,1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+               'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 壁纸层 */
+#bg-layer {
+  position: fixed;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+#bg-layer.loaded { opacity: 1; }
+
+/* 遮罩层 */
+#bg-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13,17,23,0.22);
+  backdrop-filter: blur(1px);
+  z-index: 1;
+}
+
+/* 主内容 */
+#help-page {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 头部 */
+.help-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(22,27,34,0.95);
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+  flex-shrink: 0;
+  backdrop-filter: blur(4px);
+}
+.help-header .back-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 1.4rem;
+  padding: 4px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background var(--anim);
+}
+.help-header .back-btn:hover { background: rgba(56,139,253,.12); }
+.help-header .title {
+  flex: 1;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* 内容区域 */
+.help-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 20px 40px;
+  background: rgba(13,17,23,0.35);
+  backdrop-filter: blur(3px);
+}
+
+/* 卡片 */
+.section-card {
+  background: rgba(22,27,34,0.65);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 28px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+}
+.section-card h2 {
+  font-size: 1.15rem;
+  color: var(--accent);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-card h2::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 22px;
+  background: var(--accent2);
+  border-radius: 4px;
+}
+
+/* 文字样式 */
+.section-card p, .section-card li {
+  font-size: .92rem;
+  line-height: 1.65;
+  color: var(--text2);
+  margin-bottom: 14px;
+}
+.section-card ul {
+  padding-left: 20px;
+}
+.section-card li {
+  margin-bottom: 10px;
+}
+.section-card code {
+  background: rgba(0,0,0,.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  color: var(--accent);
+  font-size: .88rem;
+}
+
+/* 链接按钮 */
+.link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(56,139,253,.12);
+  color: var(--accent);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  font-weight: 600;
+  margin-top: 8px;
+  transition: all var(--anim);
+}
+.link-btn:hover {
+  background: var(--accent2);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.footer {
+  text-align: center;
+  padding: 20px;
+  color: var(--muted);
+  font-size: .82rem;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 壁纸层（已修正路径：从 /in/ 返回根目录） -->
+<div id="bg-layer"></div>
+<div id="bg-overlay"></div>
+
+<div id="help-page">
+
+  <!-- 头部 -->
+  <div class="help-header">
+    <button onclick="history.back()" class="back-btn" title="返回控制台">←</button>
+    <div class="title">使用帮助</div>
+    <div style="font-size:1.1rem;">❓</div>
+  </div>
+
+  <!-- 内容 -->
+  <div class="help-content">
+
+    <!-- 第一栏：项目介绍 -->
+    <div class="section-card">
+      <h2>📌 项目介绍</h2>
+      <p><strong>TG 桥接控制台</strong> 是一款完全基于 <strong>Cloudflare Worker</strong> 的 Telegram 消息桥接工具。</p>
+      <p>您无需购买服务器、无需部署后端代码，只需要一个 Cloudflare 账号即可实现：</p>
+      <ul>
+        <li>实时接收 Telegram 私密群组、公开群组、联系人私聊消息</li>
+        <li>在网页控制台直接发送消息、发布到频道</li>
+        <li>支持多群组、多联系人、多频道同时管理</li>
+        <li>全球 CDN 加速，延迟极低</li>
+      </ul>
+      <p><strong>核心原理：</strong> Cloudflare Worker 接收 Telegram 的 Webhook 推送 → 转发到您的浏览器前端，同时支持从浏览器反向调用 Telegram Bot API 发送消息。</p>
+      <p>整个系统零服务器成本、零维护，安全可靠。</p>
+    </div>
+
+    <!-- 第二栏：常见问题 -->
+    <div class="section-card">
+      <h2>❓ 常见问题</h2>
+      
+      <strong style="color:#f47067;">Q：控制台无法接收消息，发送时提示“网络错误”，但 Telegram 里能看到机器人已经成功发出消息？</strong>
+      <p style="margin-top:8px;">A：这是 Webhook 失效导致的典型问题。</p>
+      <p style="margin-top:8px;">解决方法：<strong>重新设置 Webhook</strong></p>
+      <p>请在浏览器地址栏输入以下链接（把中括号内容替换成您的真实信息）：</p>
+      <p style="background:rgba(0,0,0,.3);padding:12px;border-radius:8px;font-family:monospace;font-size:.9rem;line-height:1.5;word-break:break-all;">
+        https://api.telegram.org/bot<strong style="color:#79c0ff;">【您的Bot Token】</strong>/setWebhook?url=<strong style="color:#79c0ff;">【您的Worker地址】</strong>/webhook
+      </p>
+      <p>访问后看到 <code>{"ok":true}</code> 即表示修复成功。</p>
+
+      <hr style="border:none;border-top:1px solid var(--border);margin:24px 0;">
+
+      <p><strong>获取 Telegram Bot Token</strong></p>
+      <p>访问下方链接，输入您在控制台登录时使用的<strong>访问密钥</strong>，即可查看当前绑定的 Bot Token：</p>
+      <a href="https://pqdheasjuagttpsppdqn.supabase.co/functions/v1/super-action" 
+         target="_blank" 
+         class="link-btn">
+        🔑 获取 Bot Token
+      </a>
+      <p style="margin-top:12px;font-size:.85rem;color:var(--muted);">（由 Supabase Edge Function 提供安全验证）</p>
+    </div>
+
+    <!-- 第三栏：自建教程 -->
+    <div class="section-card">
+      <h2>🛠 自建桥接项目教程</h2>
+      <p>本节内容正在完善中……</p>
+      <p>未来将提供：</p>
+      <ul>
+        <li>完整 Worker 源码解析</li>
+        <li>如何在 Cloudflare 部署</li>
+        <li>自定义域名 + HTTPS 配置</li>
+        <li>高级功能开发（多机器人、数据库存储等）</li>
+      </ul>
+      <p style="margin-top:20px;color:var(--muted);">敬请期待，或在 GitHub / Telegram 群里催更～</p>
+    </div>
+
+  </div>
+
+  <!-- 底部 -->
+  <div class="footer">
+    返回 <a href="../" style="color:var(--accent);text-decoration:none;">控制台</a> • 
+    如需更多帮助可联系项目维护者
+  </div>
+
+</div>
+
+<script>
+// 壁纸加载（已修正为从 /in/ 目录返回根目录）
+(function initBg() {
+  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth < 768;
+  const imgFile = isMobile ? '../f1.jpg' : '../f2.jpg';   // ← 关键修改点
+  const bg = document.getElementById('bg-layer');
+  const img = new Image();
+  img.onload = () => {
+    bg.style.backgroundImage = `url('${imgFile}')`;
+    bg.classList.add('loaded');
+  };
+  img.src = imgFile;
+})();
+</script>
+</body>
+        </html>
