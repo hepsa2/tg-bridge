@@ -236,12 +236,8 @@ body {
         <input type="password" id="user-key" placeholder="输入控制台访问密钥" 
                style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border2); background:var(--surface2); color:var(--text); font-size:0.95rem; margin-bottom:10px;">
         
-        <button onclick="getBotToken()" 
-                style="background:var(--accent2); color:#fff; border:none; padding:10px 20px; border-radius:8px; font-weight:600; cursor:pointer;">
-          🔑 获取 Bot Token
-        </button>
+      
         
-        <div id="token-result" style="margin-top:16px; font-family:monospace; word-break:break-all; line-height:1.5;"></div>
       </div>
 
       <p style="font-size:0.85rem; color:var(--muted);">
@@ -285,45 +281,7 @@ body {
 })();
 
 // 获取 Bot Token 函数（已清理重复代码，推荐使用 POST）
-async function getBotToken() {
-  const keyInput = document.getElementById('user-key');
-  const resultDiv = document.getElementById('token-result');
-  const key = keyInput.value.trim();
 
-  if (!key) {
-    resultDiv.innerHTML = `<span style="color:#f47067;">请输入访问密钥</span>`;
-    return;
-  }
-
-  resultDiv.innerHTML = `验证中...`;
-
-  try {
-    const response = await fetch('https://pqdheasjuagttpsppdqn.supabase.co/functions/v1/super-action', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ key: key })
-    });
-
-    const data = await response.json();
-
-    if (response.ok && data.token) {
-      resultDiv.innerHTML = `
-        <strong style="color:#57ab5a;">✅ 获取成功</strong><br><br>
-        <span style="color:var(--accent);">Bot Token：</span><br>
-        <code style="background:rgba(0,0,0,.4); padding:10px; display:block; margin-top:8px; border-radius:6px; word-break:break-all;">
-          ${data.token}
-        </code>
-      `;
-    } else {
-      resultDiv.innerHTML = `<span style="color:#f47067;">验证失败：${data.error || data.message || '未知错误'}</span>`;
-    }
-  } catch (err) {
-    console.error(err);
-    resultDiv.innerHTML = `<span style="color:#f47067;">网络错误（可能是 CORS、JWT 未关闭或函数未正确部署）</span>`;
-  }
-}
 </script>
 </body>
 </html>
