@@ -239,7 +239,31 @@ body {
   align-items: center;
   z-index: 10010;           /* 给包裹容器也加高层级 */
 }
-
+.menu-trigger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text2);
+  font-size: 1.15rem;
+  line-height: 1;
+  padding: 4px 6px;
+  border-radius: 7px;
+  transition: background var(--anim), color var(--anim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+.menu-trigger:hover { background: rgba(255,255,255,.08); color: var(--text); }
+.menu-trigger svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+    }
 .dropdown {
   position: absolute;
   top: calc(100% + 8px);
@@ -765,13 +789,13 @@ body {
   <div class="app-header">
     <!-- [改动4] 🔗 替换为汉堡菜单按钮 + 下拉菜单 -->
     <div class="menu-wrap" id="menu-wrap">
-      <button class="menu-trigger" id="menu-btn" title="菜单" aria-haspopup="true" aria-expanded="false">
-        <svg viewBox="0 0 18 18">
-          <line x1="2" y1="4.5" x2="16" y2="4.5"/>
-          <line x1="2" y1="9"   x2="16" y2="9"/>
-          <line x1="2" y1="13.5" x2="16" y2="13.5"/>
-        </svg>
-      </button>
+     <button class="menu-trigger" id="menu-btn" title="菜单" aria-haspopup="true" aria-expanded="false">
+     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+     <line x1="3" y1="6" x2="21" y2="6"></line>
+     <line x1="3" y1="12" x2="21" y2="12"></line>
+     <line x1="3" y1="18" x2="21" y2="18"></line>
+     </svg>
+    </button>
       <div class="dropdown" id="header-dropdown" role="menu">
         <a href="/in/help.html" target="_blank" rel="noopener noreferrer" role="menuitem">
           <span class="dm-icon">❓</span>使用帮助
