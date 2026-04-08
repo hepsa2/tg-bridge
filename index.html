@@ -230,11 +230,13 @@ body {
 }
 
 /* ── [改动4] 菜单按钮 & 下拉框 ────────────────────── */
+/* ── [改动4] 菜单按钮 & 下拉框 ────────────────────── */
 .menu-wrap {
   position: relative;
   display: inline-flex;
   align-items: center;
 }
+
 .menu-trigger {
   background: none;
   border: none;
@@ -260,28 +262,37 @@ body {
   stroke-width: 2;
   stroke-linecap: round;
 }
+
+/* ========== 重点修改部分 ========== */
 .dropdown {
   position: absolute;
   top: calc(100% + 8px);
   left: 0;
   min-width: 160px;
-  background: rgba(22,27,34,0.96);
+  /* 提高不透明度 + 更深的表面色 */
+  background: rgba(22, 27, 34, 0.98);        /* 从 0.96 提高到 0.98 */
+  /* 或者直接用不透明的 surface 色（推荐） */
+  /* background: var(--surface2); */
+
   border: 1px solid var(--border2);
   border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: 0 12px 32px rgba(0,0,0,.55);
-  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 32px rgba(0,0,0,.65);   /* 阴影稍加强 */
+  backdrop-filter: blur(20px);               /* 可适当加大模糊 */
   z-index: 9000;
+
   opacity: 0;
   transform: translateY(-6px) scale(.97);
   pointer-events: none;
   transition: opacity .18s ease, transform .18s ease;
 }
+
 .dropdown.open {
   opacity: 1;
   transform: translateY(0) scale(1);
   pointer-events: auto;
 }
+
 .dropdown a {
   display: flex;
   align-items: center;
@@ -294,8 +305,16 @@ body {
   border-bottom: 1px solid var(--border);
 }
 .dropdown a:last-child { border-bottom: none; }
-.dropdown a:hover { background: rgba(56,139,253,.1); color: var(--text); }
-.dropdown a .dm-icon { font-size: .95rem; width: 18px; text-align: center; flex-shrink: 0; }
+.dropdown a:hover { 
+  background: rgba(56,139,253,.12); 
+  color: var(--text); 
+}
+.dropdown a .dm-icon { 
+  font-size: .95rem; 
+  width: 18px; 
+  text-align: center; 
+  flex-shrink: 0; 
+  }
 
 /* ── Tabs ─────────────────────────────────────────── */
 .tabs {
