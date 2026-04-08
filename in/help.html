@@ -188,23 +188,18 @@ body {
 
 <body>
 
-<!-- 壁纸层（已修正路径：从 /in/ 返回根目录） -->
 <div id="bg-layer"></div>
 <div id="bg-overlay"></div>
 
 <div id="help-page">
-
-  <!-- 头部 -->
   <div class="help-header">
     <button onclick="history.back()" class="back-btn" title="返回控制台">←</button>
     <div class="title">使用帮助</div>
     <div style="font-size:1.1rem;">❓</div>
   </div>
 
-  <!-- 内容 -->
   <div class="help-content">
-
-    <!-- 第一栏：项目介绍 -->
+    <!-- 第一栏：项目介绍（保持不变） -->
     <div class="section-card">
       <h2>📌 项目介绍</h2>
       <p><strong>TG 桥接控制台</strong> 是一款完全基于 <strong>Cloudflare Worker</strong> 的 Telegram 消息桥接工具。</p>
@@ -226,33 +221,33 @@ body {
       <strong style="color:#f47067;">Q：控制台无法接收消息，发送时提示“网络错误”，但 Telegram 里能看到机器人已经成功发出消息？</strong>
       <p style="margin-top:8px;">A：这是 Webhook 失效导致的典型问题。</p>
       <p style="margin-top:8px;">解决方法：<strong>重新设置 Webhook</strong></p>
-      <p>请在浏览器地址栏输入以下链接（把中括号内容替换成您的真实信息）：</p>
+      <p>请在浏览器地址栏输入以下链接（替换中括号内容）：</p>
       <p style="background:rgba(0,0,0,.3);padding:12px;border-radius:8px;font-family:monospace;font-size:.9rem;line-height:1.5;word-break:break-all;">
         https://api.telegram.org/bot<strong style="color:#79c0ff;">【您的Bot Token】</strong>/setWebhook?url=<strong style="color:#79c0ff;">【您的Worker地址】</strong>/webhook
       </p>
       <p>访问后看到 <code>{"ok":true}</code> 即表示修复成功。</p>
 
       <hr style="border:none;border-top:1px solid var(--border);margin:24px 0;">
-<!-- 在第二栏 section-card 里替换这部分 -->
-<p><strong>获取 Telegram Bot Token</strong></p>
-<p>请输入您在控制台登录时使用的<strong>访问密钥</strong>，系统将验证后返回绑定的 Bot Token：</p>
 
-<div style="margin: 16px 0; background: rgba(0,0,0,.25); padding: 16px; border-radius: 10px;">
-  <input type="password" id="user-key" placeholder="输入控制台访问密钥" 
-         style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border2); background:var(--surface2); color:var(--text); font-size:0.95rem; margin-bottom:10px;">
-  
-  <button onclick="getBotToken()" 
-          style="background:var(--accent2); color:#fff; border:none; padding:10px 20px; border-radius:8px; font-weight:600; cursor:pointer;">
-    🔑 获取 Bot Token
-  </button>
-  
-  <div id="token-result" style="margin-top:16px; font-family:monospace; word-break:break-all; line-height:1.5;"></div>
-</div>
+      <p><strong>获取 Telegram Bot Token</strong></p>
+      <p>请输入您在控制台登录时使用的<strong>访问密钥</strong>，系统将验证后返回绑定的 Bot Token：</p>
 
-<p style="font-size:0.85rem; color:var(--muted);">
-  注意：密钥验证由 Supabase Edge Function 处理，过程安全。
-</p>
+      <div style="margin: 16px 0; background: rgba(0,0,0,.25); padding: 16px; border-radius: 10px;">
+        <input type="password" id="user-key" placeholder="输入控制台访问密钥" 
+               style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border2); background:var(--surface2); color:var(--text); font-size:0.95rem; margin-bottom:10px;">
+        
+        <button onclick="getBotToken()" 
+                style="background:var(--accent2); color:#fff; border:none; padding:10px 20px; border-radius:8px; font-weight:600; cursor:pointer;">
+          🔑 获取 Bot Token
+        </button>
+        
+        <div id="token-result" style="margin-top:16px; font-family:monospace; word-break:break-all; line-height:1.5;"></div>
+      </div>
 
+      <p style="font-size:0.85rem; color:var(--muted);">
+        注意：密钥验证由 Supabase Edge Function 处理，过程安全。
+      </p>
+    </div>
 
     <!-- 第三栏：自建教程 -->
     <div class="section-card">
@@ -267,22 +262,19 @@ body {
       </ul>
       <p style="margin-top:20px;color:var(--muted);">敬请期待，或在 GitHub / Telegram 群里催更～</p>
     </div>
-
   </div>
 
-  <!-- 底部 -->
   <div class="footer">
     返回 <a href="../" style="color:var(--accent);text-decoration:none;">控制台</a> • 
     如需更多帮助可联系项目维护者
   </div>
-
 </div>
 
 <script>
-// 壁纸加载（已修正为从 /in/ 目录返回根目录）
+// 壁纸加载（路径保持不变）
 (function initBg() {
   const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth < 768;
-  const imgFile = isMobile ? '../f1.jpg' : '../f2.jpg';   // ← 关键修改点
+  const imgFile = isMobile ? '../f1.jpg' : '../f2.jpg';
   const bg = document.getElementById('bg-layer');
   const img = new Image();
   img.onload = () => {
@@ -291,7 +283,9 @@ body {
   };
   img.src = imgFile;
 })();
-  async function getBotToken() {
+
+// 获取 Bot Token 函数（已清理重复代码，推荐使用 POST）
+async function getBotToken() {
   const keyInput = document.getElementById('user-key');
   const resultDiv = document.getElementById('token-result');
   const key = keyInput.value.trim();
@@ -304,53 +298,32 @@ body {
   resultDiv.innerHTML = `验证中...`;
 
   try {
-  // 直接在 URL 里带上 key 参数
-  const url = `https://pqdheasjuagttpsppdqn.supabase.co/functions/v1/super-action?key=${encodeURIComponent(key)}`;
-  
-  // fetch 默认就是 GET
-  const response = await fetch(url);
-
-  const data = await response.json();
-
-  if (response.ok && data.token) {
-    // 成功逻辑
-    resultDiv.innerHTML = `
-      <strong style="color:#57ab5a;">✅ 获取成功</strong><br>
-      <span style="color:var(--accent);">Bot Token:</span><br>
-      <code style="background:rgba(0,0,0,.4); padding:8px; display:block; margin-top:8px; border-radius:6px;">
-        ${data.token}
-      </code>
-    `;
-  } else {
-    // 错误逻辑
-    resultDiv.innerHTML = `<span style="color:#f47067;">${data.message || '验证失败，请检查密钥'}</span>`;
-  }
-
-} catch (err) {
-  resultDiv.innerHTML = `<span style="color:#f47067;">网络错误，请稍后重试</span>`;
-  console.error(err);
-  }
+    const response = await fetch('https://pqdheasjuagttpsppdqn.supabase.co/functions/v1/super-action', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ key: key })
+    });
 
     const data = await response.json();
 
-    if (response.ok) {
-      if (data.token) {
-        resultDiv.innerHTML = `
-          <strong style="color:#57ab5a;">✅ 获取成功</strong><br>
-          <span style="color:var(--accent);">Bot Token:</span><br>
-          <code style="background:rgba(0,0,0,.4); padding:8px; display:block; margin-top:8px; border-radius:6px;">${data.token}</code>
-        `;
-      } else {
-        resultDiv.innerHTML = `<span style="color:#f47067;">${data.message || '未返回 Token'}</span>`;
-      }
+    if (response.ok && data.token) {
+      resultDiv.innerHTML = `
+        <strong style="color:#57ab5a;">✅ 获取成功</strong><br><br>
+        <span style="color:var(--accent);">Bot Token：</span><br>
+        <code style="background:rgba(0,0,0,.4); padding:10px; display:block; margin-top:8px; border-radius:6px; word-break:break-all;">
+          ${data.token}
+        </code>
+      `;
     } else {
-      resultDiv.innerHTML = `<span style="color:#f47067;">验证失败（${response.status}）<br>${data.message || '请检查密钥是否正确'}</span>`;
+      resultDiv.innerHTML = `<span style="color:#f47067;">验证失败：${data.error || data.message || '未知错误'}</span>`;
     }
   } catch (err) {
-    resultDiv.innerHTML = `<span style="color:#f47067;">网络错误，请稍后重试</span>`;
     console.error(err);
+    resultDiv.innerHTML = `<span style="color:#f47067;">网络错误（可能是 CORS、JWT 未关闭或函数未正确部署）</span>`;
   }
-      }
+}
 </script>
 </body>
-        </html>
+</html>
