@@ -193,7 +193,7 @@ body {
 
 <div id="help-page">
   <div class="help-header">
-    <button onclick="history.back()" class="back-btn" title="返回控制台">←</button>
+    <button onclick="location.href='../index.html'" class="back-btn">←</button>
     <div class="title">使用帮助</div>
     <div style="font-size:1.1rem;">❓</div>
   </div>
@@ -208,10 +208,10 @@ body {
         <li>实时接收 Telegram 私密群组、公开群组、联系人私聊消息</li>
         <li>在网页控制台直接发送消息、发布到频道</li>
         <li>支持多群组、多联系人、多频道同时管理</li>
-        <li>全球 CDN 加速，延迟极低</li>
+        <li>全球 CDN 加速，延迟较低</li>
       </ul>
       <p><strong>核心原理：</strong> Cloudflare Worker 接收 Telegram 的 Webhook 推送 → 转发到您的浏览器前端，同时支持从浏览器反向调用 Telegram Bot API 发送消息。</p>
-      <p>整个系统零服务器成本、零维护，安全可靠。</p>
+      <p>整个系统零服务器成本、安全可靠。</p>
     </div>
 
     <!-- 第二栏：常见问题 -->
@@ -230,9 +230,11 @@ body {
       <hr style="border:none;border-top:1px solid var(--border);margin:24px 0;">
 
       <p><strong>获取 Telegram Bot Token</strong></p>
-      <p>通过添加XMPP群组：中转之地@conference.conversations.im并在群内长期交流，以获取token,管理员视各方面有机特征判定信任度</p>
+      <p>通过添加XMPP群组：<br>中转之地@conference.conversations.im<br>并在群内长期交流，以获取token,管理员视各方面有机特征判定信任度</p>
 
-
+      <strong style="color:#f47067;">Q：群组消息页面出现频繁闪屏？</strong>
+      <p style="margin-top:8px;">A：这是前端频繁轮询与cfworkerKV结构导致的固有问题</p>
+      <p style="margin-top:8px;">解决方法：<strong>右上角清除该群历史记录</strong></p>
       <p style="font-size:0.85rem; color:var(--muted);">
         如有问题，可在XMPP中转群公开留言
       </p>
