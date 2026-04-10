@@ -21,4 +21,4 @@ Fennec浏览器效果<br>
 - 注意：telegram消息转网页端延迟相对较高
 ## 部署
 
-[查看部署教程](https://github.com/hepsa2/tg-bridge/set/main/set.md)
+[查看部署教程](https://github.com/hepsa2/tg-bridge/main/set/set.md)
