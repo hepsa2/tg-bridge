@@ -1349,6 +1349,9 @@ async function sendCh(chatId, sid) {
   } catch { toast('网络错误', false); }
   if (btn) { btn.disabled = false; btn.textContent = '📤 发布到频道'; }
 }
+document.querySelectorAll('#header-dropdown a').forEach(a => {
+  a.removeAttribute('target');
+});
 </script>
 </body>
 </html>
