@@ -11,8 +11,14 @@ Fennec浏览器效果<br>
 - 无需租用服务器托管，享cloudflare免费套餐即可
 - 手机即可部署
 - 页面极简风格
+- 使用tor也可“上tg”
+- 封号概率
 ## 使用说明
 - 需要将telegram机器人拉入指定群组/频道
 - 需要给机器人添加群组/频道管理权限
 - 群组中发送/getid以获取群组id,后在worker修改配置
 - 联系人需手动给bot发送/start并把自己的id给机器人管理,以在cfworker配置id
+- 注意：telegram消息转网页端延迟相对较高
+## 部署
+
+[查看部署教程](https://github.io/hepsa2/tg-bridge/set/main/set.md)
