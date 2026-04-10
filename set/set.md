@@ -278,5 +278,5 @@ https://api.telegram.org/bot【此处填写Bot Token】/setWebhook?url=【此处
 5. 之后浏览器输入网址并访问页面，看到ok,true则成功。
 
 ## 在入口页登陆你的控制台：
-[入口页](https://github.io/hepsa2/tg-bridge)
+[入口页](https://hepsa2.github.io/tg-bridge)
 
