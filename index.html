@@ -797,8 +797,8 @@ body {
      </svg>
     </button>
       <div class="dropdown" id="header-dropdown" role="menu">
-        <a href="in/help.html" rel="noopener noreferrer" role="menuitem">
-          <span class="dm-icon">❓</span>使用帮助
+        <a href="in/help.html" class="internal-link" role="menuitem">
+  <span class="dm-icon">❓</span>使用帮助
         </a>
         <a href="/in/help.html" target="_blank" rel="noopener noreferrer" role="menuitem">
           <span class="dm-icon">ℹ️</span>关于项目
@@ -1349,8 +1349,11 @@ async function sendCh(chatId, sid) {
   } catch { toast('网络错误', false); }
   if (btn) { btn.disabled = false; btn.textContent = '📤 发布到频道'; }
 }
-document.querySelectorAll('#header-dropdown a').forEach(a => {
-  a.removeAttribute('target');
+document.querySelectorAll('#header-dropdown a.internal-link').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    window.location.href = link.href;
+  });
 });
 </script>
 </body>
