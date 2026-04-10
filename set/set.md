@@ -258,7 +258,7 @@ async function tgSend(chatId, text) {
 ```
 复制完后记得划到末尾部分，看看左下角有没有多出红色下划线的大括号，如果有记得删掉（这是手机粘贴代码常见问题）<br>
 
-## ClaudeflareKV设置
+## CloudflareKV设置
 1. 菜单栏找到📂storage→worker KV
 2. 创建一个name space,名字填tg-messages
 3. 回到之前worker页面，选binding,name写MESSAGES_KV,下面选择之前创建的tg-messages
