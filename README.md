@@ -22,3 +22,5 @@ Fennec浏览器效果<br>
 ## 部署
 
 <a href="set/set.md">查看部署教程</a>
+
+> This project is licensed under AGPL-3.0
